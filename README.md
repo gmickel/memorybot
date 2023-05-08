@@ -41,7 +41,7 @@ You will need an OpenAI Account and API key:
 
 5. Add some context to the chatbot:
 
-   - Put any context you want to add into the docs folder before starting the bot. The bot currently accepts **.md**, **.txt** and **.json** files.
+   - Replace [example.md](docs/example.md) in the _docs_ folder with the context you want to add before starting the bot. The bot currently accepts **.md**, **.txt** and **.json** files. You can add multiple files and nest them if required.
    - Make sure you understand that this content will be sent to the OpenAI API - see [Considerations](#considerations)
 
 

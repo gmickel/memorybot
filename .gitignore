@@ -5,6 +5,7 @@ pnpm-lock.yaml
 logs
 dist
 docs/*
+!docs/example.md
 db/*
 memory/*
 chat_logs/*

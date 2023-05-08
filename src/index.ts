@@ -44,7 +44,6 @@ const llm = new OpenAIChat({
   streaming: true,
   callbackManager,
   modelName: process.env.MODEL || 'gpt-3.5-turbo',
-  verbose: true,
 });
 
 const systemPrompt = SystemMessagePromptTemplate.fromTemplate(oneLine`
