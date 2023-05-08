@@ -39,6 +39,8 @@ You will need an OpenAI Account and API key:
 
 4. Set up environment variables by creating a `.env` file in the project root directory with the necessary API keys and configuration options. You can use the provided `.env.example` file as a template.
 
+   - **Important:** If you do not have access to GPT-4 yet, set the MODEL env variable to GPT-3.5-turbo. You can request access to GPT-4 [here](https://openai.com/waitlist/gpt-4-api).
+
 5. Add some context to the chatbot:
 
    - Replace [example.md](docs/example.md) in the _docs_ folder with the context you want to add before starting the bot. The bot currently accepts **.md**, **.txt** and **.json** files. You can add multiple files and nest them if required.
