@@ -25,14 +25,9 @@ import chalk from 'chalk';
 import { oraPromise } from 'ora';
 import { logChat } from './chatLogger.js';
 import { createCommandHandler } from './commands.js';
+import { getDefaultOraOptions } from './config.js';
 
 dotenv.config();
-
-const defaultOraOptions = {
-  text: 'Loading',
-  stream: output,
-  discardStdin: false,
-};
 
 const __dirname = new URL('..', import.meta.url).pathname;
 const dbDirectory = path.join(__dirname, process.env.VECTOR_STORE_DIR || 'db');
@@ -40,6 +35,7 @@ const memoryDirectory = path.join(__dirname, process.env.MEMORY_VECTOR_STORE_DIR
 const chatLogDirectory = path.join(__dirname, 'chat_logs');
 const systemPromptTemplate = fs.readFileSync(path.join(__dirname, 'src/prompt.txt'), 'utf8');
 const rl = readline.createInterface({ input, output });
+const defaultOraOptions = getDefaultOraOptions(output);
 const commandHandler: CommandHandler = createCommandHandler();
 const windowMemory = new BufferWindowMemory({ returnMessages: true, memoryKey: 'immediate_history', k: 2 });
 
@@ -75,7 +71,7 @@ const chain = new ConversationChain({
 
 while (true) {
   output.write(chalk.green('\nStart chatting or type /help for a list of commands\n'));
-  const input = await rl.question('How can I help? ');
+  const input = await rl.question('> ');
   if (input.startsWith('/')) {
     const [command, ...args] = input.slice(1).split(' ');
     commandHandler.execute(command, args, output);
