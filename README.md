@@ -35,6 +35,8 @@ You will need an OpenAI Account and API key:
    npm install
    ```
 
+   Please note: On Windows, you might need to install Visual Studio first in order to properly build the hnswlib-node package. Alternatively you can use [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/).
+
 4. Set up environment variables by creating a `.env` file in the project root directory with the necessary API keys and configuration options. You can use the provided `.env.example` file as a template.
 
 5. Add some context to the chatbot:
