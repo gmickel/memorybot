@@ -1,0 +1,10 @@
+node_modules
+package-lock.json
+pnpm-lock.yaml
+.env
+logs
+dist
+docs/*
+db/*
+memory/*
+chat_logs/*
