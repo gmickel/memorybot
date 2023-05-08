@@ -18,5 +18,5 @@
     "strictPropertyInitialization": false
   },
   "exclude": ["node_modules/", "dist/", "tests/"],
-  "include": ["./src"]
+  "include": ["./src", "./src/global.d.ts"]
 }

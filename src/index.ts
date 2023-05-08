@@ -19,17 +19,24 @@ import {
 } from 'langchain/prompts';
 import { ConversationChain } from 'langchain/chains';
 import { BufferWindowMemory } from 'langchain/memory';
-import { oneLine } from 'common-tags';
 import { Document } from 'langchain/document';
+import { oneLine } from 'common-tags';
+import chalk from 'chalk';
+import { oraPromise } from 'ora';
 import { logChat } from './chatLogger.js';
+import { createCommandHandler } from './commands.js';
+import { getDefaultOraOptions } from './config.js';
 
 dotenv.config();
+
 const __dirname = new URL('..', import.meta.url).pathname;
 const dbDirectory = path.join(__dirname, process.env.VECTOR_STORE_DIR || 'db');
 const memoryDirectory = path.join(__dirname, process.env.MEMORY_VECTOR_STORE_DIR || 'memory');
 const chatLogDirectory = path.join(__dirname, 'chat_logs');
 const systemPromptTemplate = fs.readFileSync(path.join(__dirname, 'src/prompt.txt'), 'utf8');
 const rl = readline.createInterface({ input, output });
+const defaultOraOptions = getDefaultOraOptions(output);
+const commandHandler: CommandHandler = createCommandHandler();
 const windowMemory = new BufferWindowMemory({ returnMessages: true, memoryKey: 'immediate_history', k: 2 });
 
 const contextVectorStore = await loadOrCreateVectorStore(dbDirectory);
@@ -63,18 +70,24 @@ const chain = new ConversationChain({
 });
 
 while (true) {
-  const input = await rl.question('How can I help? ');
-  const question = sanitizeInput(input);
-  const context = await getRelevantContext(contextVectorStore, question, 10);
-  const history = await getRelevantContext(memoryVectorStore, question, 4);
+  output.write(chalk.green('\nStart chatting or type /help for a list of commands\n'));
+  const input = await rl.question('> ');
+  if (input.startsWith('/')) {
+    const [command, ...args] = input.slice(1).split(' ');
+    commandHandler.execute(command, args, output);
+  } else {
+    const question = sanitizeInput(input);
+    const context = await getRelevantContext(contextVectorStore, question, 10);
+    const history = await getRelevantContext(memoryVectorStore, question, 4);
 
-  const prompt = `Chat history: ${history}. Context: ${context}. Question: ${question}`;
-  const response = await chain.call({ prompt });
-  await updateVectorStore(memoryVectorStore, memoryDirectory, [
-    { content: question, metadataType: 'question' },
-    { content: response.response, metadataType: 'answer' },
-  ]);
-  await logChat(chatLogDirectory, question, response.response);
+    const prompt = `Chat history: ${history}. Context: ${context}. Question: ${question}`;
+    const response = await chain.call({ prompt });
+    await updateVectorStore(memoryVectorStore, memoryDirectory, [
+      { content: question, metadataType: 'question' },
+      { content: response.response, metadataType: 'answer' },
+    ]);
+    await logChat(chatLogDirectory, question, response.response);
+  }
   output.write('\n');
 }
 
@@ -91,7 +104,7 @@ async function loadOrCreateVectorStore(dbDirectory: string): Promise<HNSWLib> {
   try {
     vectorStore = await HNSWLib.load(dbDirectory, new OpenAIEmbeddings());
   } catch {
-    output.write('\x1b[92mCreating new vector store...\x1b[0m\n');
+    output.write(chalk.blue(`Creating a new context vector store index in the ${dbDirectory} directory`) + '\n');
     const loader = new DirectoryLoader(
       path.join(__dirname, process.env.DOCS_DIR || 'docs'),
       {
@@ -101,8 +114,14 @@ async function loadOrCreateVectorStore(dbDirectory: string): Promise<HNSWLib> {
       },
       true
     );
-    const docs = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
-    vectorStore = await HNSWLib.fromDocuments(docs, new OpenAIEmbeddings());
+    const docs = await oraPromise(loader.loadAndSplit(new RecursiveCharacterTextSplitter()), {
+      ...defaultOraOptions,
+      text: 'Loading documents',
+    });
+    vectorStore = await oraPromise(HNSWLib.fromDocuments(docs, new OpenAIEmbeddings()), {
+      ...defaultOraOptions,
+      text: 'Creating vector store',
+    });
     await vectorStore.save(dbDirectory);
   }
   return vectorStore;
@@ -121,8 +140,14 @@ async function loadOrCreateMemoryVectorStore(memoryDirectory: string): Promise<H
   try {
     memoryVectorStore = await HNSWLib.load(memoryDirectory, new OpenAIEmbeddings());
   } catch {
-    output.write('\x1b[92mCreating new memory store...\x1b[0m\n');
-    memoryVectorStore = await HNSWLib.fromDocuments([new Document({ pageContent: ' ' })], new OpenAIEmbeddings());
+    output.write(chalk.blue(`Creating a new memory vector store index in the ${memoryDirectory} directory`) + '\n');
+    memoryVectorStore = await oraPromise(
+      HNSWLib.fromDocuments([new Document({ pageContent: ' ' })], new OpenAIEmbeddings()),
+      {
+        ...defaultOraOptions,
+        text: 'Creating memory vector store',
+      }
+    );
     await memoryVectorStore.save(memoryDirectory);
   }
   return memoryVectorStore;
