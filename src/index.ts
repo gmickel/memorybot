@@ -140,14 +140,10 @@ async function loadOrCreateMemoryVectorStore(memoryDirectory: string): Promise<H
     memoryVectorStore = await HNSWLib.load(memoryDirectory, new OpenAIEmbeddings());
   } catch {
     output.write(chalk.blue(`Creating a new memory vector store index in the ${memoryDirectory} directory`) + '\n');
-    memoryVectorStore = await oraPromise(
-      HNSWLib.fromDocuments([new Document({ pageContent: ' ' })], new OpenAIEmbeddings()),
-      {
-        ...defaultOraOptions,
-        text: 'Creating memory vector store',
-      }
-    );
-    await memoryVectorStore.save(memoryDirectory);
+    memoryVectorStore = new HNSWLib(new OpenAIEmbeddings(), {
+      space: "cosine",
+      numDimensions: 1536,
+    });
   }
   return memoryVectorStore;
 }
