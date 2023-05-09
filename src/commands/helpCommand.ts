@@ -6,11 +6,14 @@ const helpCommand = createCommand(
   ['h', '?'],
   'Show the list of available commands',
   (_args, output, commandHandler) => {
-    output.write(chalk.blue('\nAvailable commands:\n'));
-    for (const command of commandHandler.getCommands()) {
-      const aliases = command.aliases.length > 0 ? ` (/${command.aliases.join(', /')})` : '';
-      output.write(`/${command.name}${aliases} - ${command.description}\n`);
-    }
+    return new Promise<void>((resolve) => {
+      output.write(chalk.blue('\nAvailable commands:\n'));
+      for (const command of commandHandler.getCommands()) {
+        const aliases = command.aliases.length > 0 ? ` (/${command.aliases.join(', /')})` : '';
+        output.write(`/${command.name}${aliases} - ${command.description}\n`);
+      }
+      resolve();
+    });
   }
 );
 
