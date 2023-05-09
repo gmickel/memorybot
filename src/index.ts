@@ -11,13 +11,8 @@ import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { DirectoryLoader, UnknownHandling } from 'langchain/document_loaders/fs/directory';
 import { JSONLoader } from 'langchain/document_loaders/fs/json';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
-import {
-  ChatPromptTemplate,
-  HumanMessagePromptTemplate,
-  MessagesPlaceholder,
-  SystemMessagePromptTemplate,
-} from 'langchain/prompts';
-import { ConversationChain } from 'langchain/chains';
+import { ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate } from 'langchain/prompts';
+import { LLMChain } from 'langchain/chains';
 import { BufferWindowMemory } from 'langchain/memory';
 import { Document } from 'langchain/document';
 import { oneLine } from 'common-tags';
@@ -37,7 +32,12 @@ const systemPromptTemplate = fs.readFileSync(path.join(__dirname, 'src/prompt.tx
 const rl = readline.createInterface({ input, output });
 const defaultOraOptions = getDefaultOraOptions(output);
 const commandHandler: CommandHandler = createCommandHandler();
-const windowMemory = new BufferWindowMemory({ returnMessages: true, memoryKey: 'immediate_history', k: 2 });
+const windowMemory = new BufferWindowMemory({
+  returnMessages: false,
+  memoryKey: 'immediate_history',
+  inputKey: 'input',
+  k: 2,
+});
 
 const contextVectorStore = await loadOrCreateVectorStore(dbDirectory);
 const memoryVectorStore = await loadOrCreateMemoryVectorStore(memoryDirectory);
@@ -59,11 +59,10 @@ const systemPrompt = SystemMessagePromptTemplate.fromTemplate(oneLine`
 
 const chatPrompt = ChatPromptTemplate.fromPromptMessages([
   systemPrompt,
-  new MessagesPlaceholder('immediate_history'),
-  HumanMessagePromptTemplate.fromTemplate('{prompt}'),
+  HumanMessagePromptTemplate.fromTemplate('QUESTION: """{input}"""'),
 ]);
 
-const chain = new ConversationChain({
+const chain = new LLMChain({
   prompt: chatPrompt,
   memory: windowMemory,
   llm,
@@ -80,11 +79,10 @@ while (true) {
     const context = await getRelevantContext(contextVectorStore, question, 10);
     const history = await getRelevantContext(memoryVectorStore, question, 4);
 
-    const prompt = `Chat history: ${history}. Context: ${context}. Question: ${question}`;
-    const response = await chain.call({ prompt });
+    const response = await chain.call({ input: question, context, history });
     await updateVectorStore(memoryVectorStore, memoryDirectory, [
       { content: question, metadataType: 'question' },
-      { content: response.response, metadataType: 'answer' },
+      { content: response.text, metadataType: 'answer' },
     ]);
     await logChat(chatLogDirectory, question, response.response);
   }
@@ -113,7 +111,7 @@ async function loadOrCreateVectorStore(dbDirectory: string): Promise<HNSWLib> {
         '.md': (path) => new TextLoader(path),
       },
       true,
-      UnknownHandling.Ignore,
+      UnknownHandling.Ignore
     );
     const docs = await oraPromise(loader.loadAndSplit(new RecursiveCharacterTextSplitter()), {
       ...defaultOraOptions,
