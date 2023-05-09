@@ -8,7 +8,7 @@ import { HNSWLib } from 'langchain/vectorstores/hnswlib';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { CallbackManager } from 'langchain/callbacks';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
+import { DirectoryLoader, UnknownHandling } from 'langchain/document_loaders/fs/directory';
 import { JSONLoader } from 'langchain/document_loaders/fs/json';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import {
@@ -112,7 +112,8 @@ async function loadOrCreateVectorStore(dbDirectory: string): Promise<HNSWLib> {
         '.txt': (path) => new TextLoader(path),
         '.md': (path) => new TextLoader(path),
       },
-      true
+      true,
+      UnknownHandling.Ignore,
     );
     const docs = await oraPromise(loader.loadAndSplit(new RecursiveCharacterTextSplitter()), {
       ...defaultOraOptions,
