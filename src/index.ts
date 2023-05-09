@@ -141,7 +141,7 @@ async function loadOrCreateMemoryVectorStore(memoryDirectory: string): Promise<H
   } catch {
     output.write(chalk.blue(`Creating a new memory vector store index in the ${memoryDirectory} directory`) + '\n');
     memoryVectorStore = new HNSWLib(new OpenAIEmbeddings(), {
-      space: "cosine",
+      space: 'cosine',
       numDimensions: 1536,
     });
   }

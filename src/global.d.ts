@@ -1,5 +1,6 @@
 type Command = {
   name: string;
+  aliases: string[];
   description: string;
   execute: (args: string[], output: NodeJS.WriteStream, commandHandler: CommandHandler) => void;
 };
