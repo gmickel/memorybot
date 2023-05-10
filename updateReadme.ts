@@ -15,7 +15,7 @@ async function getCommandsMarkdown() {
   for (const file of commandFiles) {
     const commandModule = await import(path.join(commandsDir, file));
     const command = commandModule.default;
-    const aliases = command.aliases.length > 0 ? ` (${command.aliases.map(alias => `/${alias}`).join(', ')})` : '';
+    const aliases = command.aliases.length > 0 ? ` (${command.aliases.map((alias) => `/${alias}`).join(', ')})` : '';
     commands.push(`- \`/${command.name}\`${aliases} - ${command.description}`);
   }
   return commands.join('\n');
