@@ -56,20 +56,32 @@ const chain = new LLMChain({
 while (true) {
   output.write(chalk.green('\nStart chatting or type /help for a list of commands\n'));
   const input = await rl.question('> ');
+  let response;
   if (input.startsWith('/')) {
     const [command, ...args] = input.slice(1).split(' ');
     await commandHandler.execute(command, args, output);
   } else {
     let memoryVectorStore = await getMemoryVectorStore();
     const question = sanitizeInput(input);
-    const context = await getRelevantContext(contextVectorStore, question, 10);
+    const context = await getRelevantContext(contextVectorStore, question, 4);
     const history = await getRelevantContext(memoryVectorStore, question, 4);
-    const response = await chain.call({ input: question, context, history, immediate_history: '' });
-    await addDocumentsToMemoryVectorStore([
-      { content: question, metadataType: 'question' },
-      { content: response.text, metadataType: 'answer' },
-    ]);
-    await logChat(chatLogDirectory, question, response.response);
+    try {
+      response = await chain.call({ input: question, context, history, immediate_history: windowMemory });
+      if (response) {
+        await addDocumentsToMemoryVectorStore([
+          { content: question, metadataType: 'question' },
+          { content: response.text, metadataType: 'answer' },
+        ]);
+        await logChat(chatLogDirectory, question, response.response);
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Cancel:')) {
+      } else if (error instanceof Error) {
+        console.error(chalk.red(error.message));
+      } else {
+        console.error(chalk.red(error));
+      }
+    }
   }
   output.write('\n');
 }
