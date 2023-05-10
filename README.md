@@ -1,5 +1,4 @@
 # Memory Bot
-
 Memory Bot is an AI chatbot built with Node.js to demonstrate unlimited context and chat history for more cost-efficient context-aware conversations. This project was originally featured on my blog [ByteSizedBrainwaves - Building a GPT-4 Powered Chatbot with Node.js: Unlimited Context and Chat History in Under 100 Lines of Code
 ](https://bytesizedbrainwaves.substack.com/p/building-a-gpt-4-powered-chatbot).
 
@@ -62,7 +61,7 @@ You will need an OpenAI Account and API key:
 
 ### Resetting the chat history/context
 
-Both the context and chat history are currently persisted and reused on every run. To reset either the context or chat history, simply the contents of either the memory folder _memory_ to reset the chat history or the contents of the _db_ and _docs_ folders to change the context provided to the bot.
+Both the context and chat history are currently persisted and reused on every run. To reset the context simply delete the contents of the _db_ folder. To start a new conversation, resetting both the bots short-term transient and long-term vector store index memory, type the command ```/reset```, see the [Commands](#commands) section for more information.
 
 Alternatively, change the variables in .env to point to different folders.
 
@@ -70,6 +69,14 @@ Restart the bot after these steps.
 
 ### Running
 After starting the chatbot, simply type your questions or messages and press Enter. The chatbot will respond with context-aware answers based on the conversation history and any provided context.
+
+### Commands
+<!-- COMMANDS_START -->
+- `/add-docs` (/docs) - Adds new documents from your configured docs directory to the context vector store. Usage: /add-docs example.txt example.md
+- `/help` (/h, /?) - Show the list of available commands
+- `/quit` (/q) - Terminates the script
+- `/reset` - Resets the chat and starts a new conversation
+<!-- COMMANDS_END -->
 
 ## Documentation
 
