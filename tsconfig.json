@@ -2,7 +2,7 @@
   "extends": "@tsconfig/recommended",
   "compilerOptions": {
     "outDir": "dist",
-    "lib": ["ES2021", "ES2022.Object", "DOM"],
+    "lib": ["ES2021", "ES2022.Object", "DOM", "ES2021.String"],
     "target": "es2021",
     "module": "nodenext",
     "sourceMap": true,
@@ -18,5 +18,5 @@
     "strictPropertyInitialization": false
   },
   "exclude": ["node_modules/", "dist/", "tests/"],
-  "include": ["./src", "./lib", "./utils", "./src/global.d.ts"]
+  "include": ["./src", "src/lib", "src/utils", "./src/global.d.ts"]
 }
