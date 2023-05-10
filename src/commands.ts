@@ -2,9 +2,10 @@ import chalk from 'chalk';
 import helpCommand from './commands/helpCommand.js';
 import quitCommand from './commands/quitCommand.js';
 import resetChatCommand from './commands/resetChatCommand.js';
+import addDocumentCommand from './commands/addDocumentCommand.js';
 
 function createCommandHandler(): CommandHandler {
-  const commands: Command[] = [helpCommand, quitCommand, resetChatCommand];
+  const commands: Command[] = [helpCommand, quitCommand, resetChatCommand, addDocumentCommand];
 
   function getCommands() {
     return commands;

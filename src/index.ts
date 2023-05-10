@@ -58,7 +58,7 @@ while (true) {
   const input = await rl.question('> ');
   if (input.startsWith('/')) {
     const [command, ...args] = input.slice(1).split(' ');
-    commandHandler.execute(command, args, output);
+    await commandHandler.execute(command, args, output);
   } else {
     let memoryVectorStore = await getMemoryVectorStore();
     const question = sanitizeInput(input);

@@ -4,11 +4,12 @@ import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { HNSWLib } from 'langchain/vectorstores/hnswlib';
 import { JSONLoader } from 'langchain/document_loaders/fs/json';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
-import { DirectoryLoader, UnknownHandling } from 'langchain/document_loaders/fs/directory';
-import { oraPromise } from 'ora';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { getDefaultOraOptions } from '../config/index.js';
+import ora from 'ora';
+import { MarkdownTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { Document } from 'langchain/document';
 import path from 'path';
+import { getDefaultOraOptions } from '../config/index.js';
+import { getDirectoryFiles } from '../utils/getDirectoryFiles.js';
 
 const __dirname = new URL('../..', import.meta.url).pathname;
 const defaultOraOptions = getDefaultOraOptions(output);
@@ -34,31 +35,73 @@ async function getContextVectorStore() {
  */
 async function loadOrCreateVectorStore(dbDirectory: string): Promise<HNSWLib> {
   let vectorStore: HNSWLib;
+  let spinner;
   try {
     vectorStore = await HNSWLib.load(dbDirectory, new OpenAIEmbeddings());
   } catch {
-    output.write(chalk.blue(`Creating a new context vector store index in the ${dbDirectory} directory`) + '\n');
-    const loader = new DirectoryLoader(
-      path.join(__dirname, process.env.DOCS_DIR || 'docs'),
-      {
-        '.json': (path) => new JSONLoader(path),
-        '.txt': (path) => new TextLoader(path),
-        '.md': (path) => new TextLoader(path),
-      },
-      true,
-      UnknownHandling.Ignore
-    );
-    const docs = await oraPromise(loader.loadAndSplit(new RecursiveCharacterTextSplitter()), {
+    spinner = ora({
       ...defaultOraOptions,
-      text: 'Loading documents',
-    });
-    vectorStore = await oraPromise(HNSWLib.fromDocuments(docs, new OpenAIEmbeddings()), {
-      ...defaultOraOptions,
-      text: 'Creating vector store',
-    });
+      text: chalk.blue(`Creating new Context Vector Store in the ${dbDirectory} directory`),
+    }).start();
+    const docsDirectory = path.join(__dirname, process.env.DOCS_DIR || 'docs');
+    const filesToAdd = await getDirectoryFiles(docsDirectory);
+    const documents = await Promise.all(filesToAdd.map((filePath) => loadAndSplitFile(filePath)));
+    const flattenedDocuments = documents.reduce((acc, val) => acc.concat(val), []);
+    vectorStore = await HNSWLib.fromDocuments(flattenedDocuments, new OpenAIEmbeddings());
     await vectorStore.save(dbDirectory);
+    spinner.succeed();
   }
   return vectorStore;
 }
 
-export { getContextVectorStore };
+async function loadAndSplitFile(filePath: string): Promise<Document<Record<string, any>>[]> {
+  try {
+    const fileExtension = path.extname(filePath);
+    let loader;
+    let documents: Document<Record<string, any>>[];
+    switch (fileExtension) {
+      case '.json':
+        loader = new JSONLoader(filePath);
+        documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+        break;
+      case '.txt':
+        loader = new TextLoader(filePath);
+        documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+        break;
+      case '.md':
+        loader = new TextLoader(filePath);
+        documents = await loader.loadAndSplit(new MarkdownTextSplitter());
+        break;
+      default:
+        throw new Error(`Unsupported file extension: ${fileExtension}`);
+    }
+    return documents;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function addDocument(filePaths: string[]) {
+  let spinner;
+  try {
+    spinner = ora({ ...defaultOraOptions, text: `Adding files to the Context Vector Store` }).start();
+    const docsDirectory = path.join(__dirname, process.env.DOCS_DIR || 'docs');
+    const documents = await Promise.all(
+      filePaths.map((filePath) => loadAndSplitFile(path.join(docsDirectory, filePath)))
+    );
+    const flattenedDocuments = documents.reduce((acc, val) => acc.concat(val), []);
+    const vectorStore = await getContextVectorStore();
+    await vectorStore.addDocuments(flattenedDocuments);
+    await vectorStore.save(dbDirectory);
+    spinner.succeed();
+    return;
+  } catch (error) {
+    if (spinner) {
+      spinner.fail(chalk.red(error));
+    } else {
+      output.write(chalk.red(error));
+    }
+    return;
+  }
+}
+export { getContextVectorStore, addDocument };

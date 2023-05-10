@@ -9,3 +9,4 @@ docs/*
 db/*
 memory/*
 chat_logs/*
+tmp/*
