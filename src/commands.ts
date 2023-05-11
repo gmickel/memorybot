@@ -3,9 +3,11 @@ import helpCommand from './commands/helpCommand.js';
 import quitCommand from './commands/quitCommand.js';
 import resetChatCommand from './commands/resetChatCommand.js';
 import addDocumentCommand from './commands/addDocumentCommand.js';
+import addURLCommand from './commands/addURLCommand.js';
+import addYouTubeCommand from './commands/addYouTubeCommand.js';
 
 function createCommandHandler(): CommandHandler {
-  const commands: Command[] = [helpCommand, quitCommand, resetChatCommand, addDocumentCommand];
+  const commands: Command[] = [helpCommand, quitCommand, resetChatCommand, addDocumentCommand, addURLCommand, addYouTubeCommand];
 
   function getCommands() {
     return commands;

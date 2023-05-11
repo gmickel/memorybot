@@ -12,8 +12,10 @@ import ora from 'ora';
 import { MarkdownTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document } from 'langchain/document';
 import path from 'path';
+import { YoutubeTranscript } from 'youtube-transcript';
 import { getDefaultOraOptions } from '../config/index.js';
 import { getDirectoryFiles } from '../utils/getDirectoryFiles.js';
+import { Crawler } from './crawler.js';
 
 const __dirname = new URL('../..', import.meta.url).pathname;
 const defaultOraOptions = getDefaultOraOptions(output);
@@ -101,6 +103,69 @@ async function loadAndSplitFile(filePath: string): Promise<Document<Record<strin
   }
 }
 
+async function addURL(URL: string, maxPages: number, numberOfCharactersRequired: number) {
+  let spinner;
+  try {
+    spinner = ora({ ...defaultOraOptions, text: `Adding URL to the Context Vector Store` }).start();
+    const crawler = new Crawler([URL], maxPages, numberOfCharactersRequired);
+    const pages = (await crawler.start()) as Page[];
+
+    const documents = await Promise.all(
+      pages.map(row => {
+        const splitter = new RecursiveCharacterTextSplitter();
+
+        const webDocs = splitter.splitDocuments([
+          new Document({
+            pageContent: row.text
+          })
+        ]);
+        return webDocs;
+      })
+    );
+    const flattenedDocuments = documents.flat();
+    const vectorStore = await getContextVectorStore();
+    await vectorStore.addDocuments(flattenedDocuments);
+    await vectorStore.save(dbDirectory);
+    spinner.succeed();
+    return;
+  } catch (error) {
+    if (spinner) {
+      spinner.fail(chalk.red(error));
+    } else {
+      output.write(chalk.red(error));
+    }
+    return;
+  }
+}
+
+async function addYouTube(URLOrVideoID: string) {
+  let spinner;
+  try {
+    spinner = ora({ ...defaultOraOptions, text: `Adding Video transcript from ${URLOrVideoID} to the Context Vector Store` }).start();
+    const transcript = await YoutubeTranscript.fetchTranscript(URLOrVideoID);
+    const text = transcript.map(part => part.text).join(' ');
+    const splitter = new RecursiveCharacterTextSplitter();
+    const videoDocs = await splitter.splitDocuments([
+      new Document({
+        pageContent: text
+      })
+    ]);
+    const vectorStore = await getContextVectorStore();
+    await vectorStore.addDocuments(videoDocs);
+    await vectorStore.save(dbDirectory);
+    spinner.succeed();
+    return;
+  } catch (error) {
+    if (spinner) {
+      spinner.fail(chalk.red(error));
+    } else {
+      output.write(chalk.red(error));
+    }
+    return;
+  }
+}
+
+
 async function addDocument(filePaths: string[]) {
   let spinner;
   try {
@@ -124,4 +189,4 @@ async function addDocument(filePaths: string[]) {
     return;
   }
 }
-export { getContextVectorStore, addDocument };
+export { getContextVectorStore, addDocument, addURL, addYouTube };

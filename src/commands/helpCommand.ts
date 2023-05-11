@@ -12,7 +12,8 @@ const helpCommand = createCommand(
       output.write(chalk.blue('\nAvailable commands:\n'));
       for (const command of commandHandler.getCommands()) {
         const aliases = command.aliases.length > 0 ? ` (/${command.aliases.join(', /')})` : '';
-        output.write(`/${command.name}${aliases} - ${command.description}\n`);
+        output.write(chalk.yellow(`/${command.name}${aliases}`));
+        output.write(` - ${command.description}\n`);
       }
       resolve();
     });

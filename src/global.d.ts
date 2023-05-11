@@ -9,3 +9,9 @@ type CommandHandler = {
   getCommands: () => Command[];
   execute: (commandName: string, args: string[], output: NodeJS.WriteStream) => Promise<void>;
 };
+
+type Page = {
+  url: string;
+  text: string;
+  title: string;
+};
