@@ -6,21 +6,21 @@ Memory Bot can be used for a variety of purposes, including context-aware conten
 Memory Bot supports adding various types of context, such as documents, web pages and youtube videos.
 
 This project was originally featured on my blog [ByteSizedBrainwaves - Building a GPT-4 Powered Chatbot with Node.js: Unlimited Context and Chat History in Under 100 Lines of Code
-](https://bytesizedbrainwaves.substack.com/p/building-a-gpt-4-powered-chatbot).
+](https://medium.com/byte-sized-brainwaves/unlimited-chatbot-context-and-chat-history-in-under-100-lines-of-code-with-langchain-and-node-js-1190fcc20708).
 
 ## Features
 
 ### Configurable Context Retrieval
-Our chatbot enables users to save costs by sending only relevant context in the prompt. It allows loading of various types of documents, such as .txt, .md, .json, .pdf, .epub, .csv into a vector store index. This is useful for context-aware content generation or content retrieval for context-aware Q&A chatbots. Users can configure the number of relevant documents to retrieve.
+Memory Bot enables users to save costs by sending only relevant context in the prompt. It allows loading of various types of documents, such as .txt, .md, .json, .pdf, .epub, .csv into a vector store index. This is useful for context-aware content generation or content retrieval for context-aware Q&A chatbots. Users can configure the number of relevant documents to retrieve.
 
 ### Configurable Long-Term Memory Retrieval
-The chatbot saves an unlimited amount of conversation history to a separate memory vector store index. This feature allows users to save costs by sending only relevant context in the prompt. Users can configure the number of relevant conversation parts to retrieve.
+Memory Bot saves an unlimited amount of conversation history to a separate memory vector store index. This feature allows users to save costs by sending only relevant context in the prompt. Users can configure the number of relevant conversation parts to retrieve.
 
 ### Configurable Short-Term Memory
-Our chatbot uses a short-term memory window so you can refine its most recent outputs. This feature can be activated or deactivated.
+Memory Bot uses a short-term converstaion buffer window memory so you can refine its most recent outputs. This feature can be activated or deactivated.
 
 ### Daily Chat Logs
-Our chatbot automatically saves all chats in daily log files in the ﻿chat_logs directory. This feature allows users to keep track of all conversations and review them later if needed. The log files are saved in a human-readable format and can be easily accessed and analyzed.
+Memory Bot automatically saves all chats in daily log files in the `chat_logs` directory. This feature allows users to keep track of all conversations and review them later if needed. The log files are saved in a human-readable format and can be easily accessed and analyzed.
 
 ## Prerequisites
 
@@ -143,7 +143,7 @@ After starting the chatbot, simply type your questions or messages and press Ent
 
 ## Documentation
 
-For a detailed guide on building and customizing the Bot, please refer to the blog post on [ByteSizedBrainwaves](https://bytesizedbrainwaves.substack.com/p/building-a-gpt-4-powered-chatbot).
+For a detailed guide on building and customizing the Bot, please refer to the blog post on [ByteSizedBrainwaves](https://bytesizedbrainwaves.hashnode.dev/series/ai-conversations).
 
 ## Considerations
 
