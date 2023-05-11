@@ -2,6 +2,8 @@
 Memory Bot is an AI chatbot built with Node.js to demonstrate unlimited context and chat history for more cost-efficient context-aware conversations. This project was originally featured on my blog [ByteSizedBrainwaves - Building a GPT-4 Powered Chatbot with Node.js: Unlimited Context and Chat History in Under 100 Lines of Code
 ](https://bytesizedbrainwaves.substack.com/p/building-a-gpt-4-powered-chatbot).
 
+Memory Bot supports various types of context, such as documents, web pages and youtube videos.
+
 ## Features
 
 - Unlimited context and chat history using HNSWLib vector stores
