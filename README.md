@@ -45,7 +45,7 @@ You will need an OpenAI Account and API key:
 
    **Make sure you understand that any content you add will be sent to the OpenAI API** - see [Considerations](#considerations)
 
-   ### Adding documents
+   ### Adding documents as context
 
    To populate the context vector index on startup, replace [example.md](docs/example.md) in the _docs_ folder with the context you want to add before starting the bot.
 
@@ -55,17 +55,13 @@ You will need an OpenAI Account and API key:
 
    **.md**, **.txt**, **.json**, **.pdf**, **.docx**, **.epub**, **.csv**
 
-   ### Adding Webpages
+   ### Crawling Webpages as context
 
-   Content from Webpages can only be added to the bot's context at runtime. see [Commands](#commands) for more details.
+   Content from Webpages can be added to the bot's context at runtime. see [Commands](#commands) for more details.
 
-   Coming soon
+   ### Adding Youtube Video transcripts as context
 
-   ### Adding Youtube Videos
-
-   Content from Youtube Videos can only be added to the bot's context at runtime. see [Commands](#commands) for more details.
-
-   Coming soon
+   Content from Youtube Videos can be added to the bot's context at runtime. see [Commands](#commands) for more details.
 
 6. Run the chatbot:
 
@@ -92,12 +88,18 @@ After starting the chatbot, simply type your questions or messages and press Ent
 
 ### Commands
 <!-- COMMANDS_START -->
-- `/add-docs` (/docs) - Adds new documents from your configured docs directory to the context vector store. 
-	Usage: /add-docs example.txt example.md
-	Supports the following file types: .txt, .md, .pdf, .docx, .csv, .epub
+- `/add-docs` (/docs) - Adds new documents from your configured docs directory to the context vector store.
+    Usage: /add-docs example.txt example.md
+    Supports the following file types: .txt, .md, .pdf, .docx, .csv, .epub
+- `/add-url` (/url) - Scrapes the content from a url and adds it to the context vector store.
+    Arguments: <url>, <Maximum number of links to follow> (Default: 1000) <Number of characters a page should have to not be ignored> (Default: 200)
+    Example: /add-url https://dociq.io 10 500
+- `/add-youtube` (/yt) - Adds the transcript from a youtube video and adds it to the context vector store.
+    Arguments: <youtube url> or <youtube videoid>
+    Example: /add-url https://www.youtube.com/watch?v=VMj-3S1tku0
 - `/help` (/h, /?) - Show the list of available commands
 - `/quit` (/q) - Terminates the script
-- `/reset` - Resets the chat and starts a new conversation
+- `/reset` - Resets the chat and starts a new conversation - This clears the memory vector store and the buffer window memory.
 <!-- COMMANDS_END -->
 
 ## Documentation
