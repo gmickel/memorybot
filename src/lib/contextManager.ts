@@ -4,6 +4,10 @@ import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { HNSWLib } from 'langchain/vectorstores/hnswlib';
 import { JSONLoader } from 'langchain/document_loaders/fs/json';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
+import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
+import { DocxLoader } from 'langchain/document_loaders/fs/docx';
+import { EPubLoader } from 'langchain/document_loaders/fs/epub';
+import { CSVLoader } from 'langchain/document_loaders/fs/csv';
 import ora from 'ora';
 import { MarkdownTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document } from 'langchain/document';
@@ -71,6 +75,22 @@ async function loadAndSplitFile(filePath: string): Promise<Document<Record<strin
       case '.md':
         loader = new TextLoader(filePath);
         documents = await loader.loadAndSplit(new MarkdownTextSplitter());
+        break;
+      case '.pdf':
+        loader = new PDFLoader(filePath, { splitPages: false });
+        documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+        break;
+      case '.docx':
+        loader = new DocxLoader(filePath);
+        documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+        break;
+      case '.csv':
+        loader = new CSVLoader(filePath);
+        documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+        break;
+      case '.epub':
+        loader = new EPubLoader(filePath, { splitChapters: false });
+        documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
         break;
       default:
         throw new Error(`Unsupported file extension: ${fileExtension}`);

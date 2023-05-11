@@ -63,7 +63,7 @@ while (true) {
   } else {
     let memoryVectorStore = await getMemoryVectorStore();
     const question = sanitizeInput(input);
-    const context = await getRelevantContext(contextVectorStore, question, 4);
+    const context = await getRelevantContext(contextVectorStore, question, 6);
     const history = await getRelevantContext(memoryVectorStore, question, 4);
     try {
       response = await chain.call({ input: question, context, history, immediate_history: windowMemory });

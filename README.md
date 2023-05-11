@@ -43,9 +43,29 @@ You will need an OpenAI Account and API key:
 
 5. Add some context to the chatbot:
 
-   - Replace [example.md](docs/example.md) in the _docs_ folder with the context you want to add before starting the bot. The bot currently accepts **.md**, **.txt** and **.json** files. You can add multiple files and nest them if required.
-   - Make sure you understand that this content will be sent to the OpenAI API - see [Considerations](#considerations)
+   **Make sure you understand that any content you add will be sent to the OpenAI API** - see [Considerations](#considerations)
 
+   ### Adding documents
+
+   To populate the context vector index on startup, replace [example.md](docs/example.md) in the _docs_ folder with the context you want to add before starting the bot.
+
+   You can also add new context at runtime, see [Commands](#commands) for more details.
+
+   #### Supported document file types
+
+   **.md**, **.txt**, **.json**, **.pdf**, **.docx**, **.epub**, **.csv**
+
+   ### Adding Webpages
+
+   Content from Webpages can only be added to the bot's context at runtime. see [Commands](#commands) for more details.
+
+   Coming soon
+
+   ### Adding Youtube Videos
+
+   Content from Youtube Videos can only be added to the bot's context at runtime. see [Commands](#commands) for more details.
+
+   Coming soon
 
 6. Run the chatbot:
 
@@ -72,7 +92,9 @@ After starting the chatbot, simply type your questions or messages and press Ent
 
 ### Commands
 <!-- COMMANDS_START -->
-- `/add-docs` (/docs) - Adds new documents from your configured docs directory to the context vector store. Usage: /add-docs example.txt example.md
+- `/add-docs` (/docs) - Adds new documents from your configured docs directory to the context vector store. 
+	Usage: /add-docs example.txt example.md
+	Supports the following file types: .txt, .md, .pdf, .docx, .csv, .epub
 - `/help` (/h, /?) - Show the list of available commands
 - `/quit` (/q) - Terminates the script
 - `/reset` - Resets the chat and starts a new conversation

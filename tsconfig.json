@@ -17,6 +17,6 @@
     "useDefineForClassFields": true,
     "strictPropertyInitialization": false
   },
-  "exclude": ["node_modules/", "dist/", "tests/"],
+  "exclude": ["node_modules/", "dist/", "tests/", "docs/", "db/", "memory/", "tmp/"],
   "include": ["./src", "src/lib", "src/utils", "./src/global.d.ts"]
 }
