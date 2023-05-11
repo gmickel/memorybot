@@ -111,13 +111,13 @@ async function addURL(URL: string, maxPages: number, numberOfCharactersRequired:
     const pages = (await crawler.start()) as Page[];
 
     const documents = await Promise.all(
-      pages.map(row => {
+      pages.map((row) => {
         const splitter = new RecursiveCharacterTextSplitter();
 
         const webDocs = splitter.splitDocuments([
           new Document({
-            pageContent: row.text
-          })
+            pageContent: row.text,
+          }),
         ]);
         return webDocs;
       })
@@ -141,14 +141,17 @@ async function addURL(URL: string, maxPages: number, numberOfCharactersRequired:
 async function addYouTube(URLOrVideoID: string) {
   let spinner;
   try {
-    spinner = ora({ ...defaultOraOptions, text: `Adding Video transcript from ${URLOrVideoID} to the Context Vector Store` }).start();
+    spinner = ora({
+      ...defaultOraOptions,
+      text: `Adding Video transcript from ${URLOrVideoID} to the Context Vector Store`,
+    }).start();
     const transcript = await YoutubeTranscript.fetchTranscript(URLOrVideoID);
-    const text = transcript.map(part => part.text).join(' ');
+    const text = transcript.map((part) => part.text).join(' ');
     const splitter = new RecursiveCharacterTextSplitter();
     const videoDocs = await splitter.splitDocuments([
       new Document({
-        pageContent: text
-      })
+        pageContent: text,
+      }),
     ]);
     const vectorStore = await getContextVectorStore();
     await vectorStore.addDocuments(videoDocs);
@@ -164,7 +167,6 @@ async function addYouTube(URLOrVideoID: string) {
     return;
   }
 }
-
 
 async function addDocument(filePaths: string[]) {
   let spinner;

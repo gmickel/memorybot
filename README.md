@@ -1,15 +1,26 @@
 # Memory Bot
-Memory Bot is an AI chatbot built with Node.js to demonstrate unlimited context and chat history for more cost-efficient context-aware conversations. This project was originally featured on my blog [ByteSizedBrainwaves - Building a GPT-4 Powered Chatbot with Node.js: Unlimited Context and Chat History in Under 100 Lines of Code
-](https://bytesizedbrainwaves.substack.com/p/building-a-gpt-4-powered-chatbot).
+Memory Bot is designed to support context-aware requests to the OpenAI API, providing unlimited context and chat history for more cost-efficient and accurate content generation.
 
-Memory Bot supports various types of context, such as documents, web pages and youtube videos.
+Memory Bot can be used for a variety of purposes, including context-aware content generation, such as marketing materials, website copy, and social media content. It can also be used for document-based question answering (DBQA), allowing you to add an unlimited amount of documents to the chatbot and ask questions such as “What was the xxx's revenue in 2021?”. This feature enables more efficient and accurate retrieval of information from your own content.
+
+Memory Bot supports adding various types of context, such as documents, web pages and youtube videos.
+
+This project was originally featured on my blog [ByteSizedBrainwaves - Building a GPT-4 Powered Chatbot with Node.js: Unlimited Context and Chat History in Under 100 Lines of Code
+](https://bytesizedbrainwaves.substack.com/p/building-a-gpt-4-powered-chatbot).
 
 ## Features
 
-- Unlimited context and chat history using HNSWLib vector stores
-- An additional rolling memory window for refining the last outputs
-- Logs all chats in daily logfiles in the chat_logs directory
-- Built using Langchain and HNSWLib
+### Configurable Context Retrieval
+Our chatbot enables users to save costs by sending only relevant context in the prompt. It allows loading of various types of documents, such as .txt, .md, .json, .pdf, .epub, .csv into a vector store index. This is useful for context-aware content generation or content retrieval for context-aware Q&A chatbots. Users can configure the number of relevant documents to retrieve.
+
+### Configurable Long-Term Memory Retrieval
+The chatbot saves an unlimited amount of conversation history to a separate memory vector store index. This feature allows users to save costs by sending only relevant context in the prompt. Users can configure the number of relevant conversation parts to retrieve.
+
+### Configurable Short-Term Memory
+Our chatbot uses a short-term memory window so you can refine its most recent outputs. This feature can be activated or deactivated.
+
+### Daily Chat Logs
+Our chatbot automatically saves all chats in daily log files in the ﻿chat_logs directory. This feature allows users to keep track of all conversations and review them later if needed. The log files are saved in a human-readable format and can be easily accessed and analyzed.
 
 ## Prerequisites
 
@@ -73,6 +84,25 @@ You will need an OpenAI Account and API key:
 
 ## Usage
 
+### Tweaking's memorybot's output by tuning memorybot's context and memory at runtime
+
+By tuning the number of relevant documents returned from memorybot's vector store indexes we can tweak its behaviour.
+
+The default values of 6 relevant context documents and 4 relevant memory documents offer a balance between searching for context in the provided context and our conversation history.
+
+Be aware that higher values equate to sending larger (and more expensive) requests to the OpenAI API.
+
+#### Examples
+
+You are generating content or asking questions concerning a lengthy E-Book. It might make sense to set the number of context documents to retrieve to a high value such as 10 using `/cc 10`
+
+You can completely deactivate either of the vector stores by setting `/cc 0` and `/mc 0` respectively.
+
+You can also completely disable the bot's window buffer memory (its short-term transient conversation memory) by using the `/wm` command.
+
+See the [Commands](#commands) section for more information.
+
+
 ### Changing the prompt
 
 - Change the [system prompt](src/prompt.txt) to whatever you need and restart the bot.
@@ -102,6 +132,13 @@ After starting the chatbot, simply type your questions or messages and press Ent
 - `/help` (/h, /?) - Show the list of available commands
 - `/quit` (/q) - Terminates the script
 - `/reset` - Resets the chat and starts a new conversation - This clears the memory vector store and the buffer window memory.
+- `/context-config` (/cc) - Sets the number of relevant documents to return from the context vector store.
+    Arguments: <number of documents> (Default: 6)
+    Example: /context-config 10
+- `/memory-config` (/mc) - Sets the number of relevant documents to return from the memory vector store.
+    Arguments: <number of documents> (Default: 4)
+    Example: /memory-config 10
+- `/toggle-window-memory` (/wm) - Toggles the window buffer memory (MemoryBot's short-term transient memory) on or off.
 <!-- COMMANDS_END -->
 
 ## Documentation

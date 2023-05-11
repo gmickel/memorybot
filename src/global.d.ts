@@ -15,3 +15,9 @@ type Page = {
   text: string;
   title: string;
 };
+
+interface Config {
+  numContextDocumentsToRetrieve: number;
+  numMemoryDocumentsToRetrieve: number;
+  useWindowMemory: boolean;
+}

@@ -5,9 +5,22 @@ import resetChatCommand from './commands/resetChatCommand.js';
 import addDocumentCommand from './commands/addDocumentCommand.js';
 import addURLCommand from './commands/addURLCommand.js';
 import addYouTubeCommand from './commands/addYouTubeCommand.js';
+import setContextConfigCommand from './commands/setContextConfigCommand.js';
+import setMemoryConfigCommand from './commands/setMemoryConfigCommand.js';
+import toggleWindowBufferMemory from './commands/toggleWindowBufferMemory.js';
 
 function createCommandHandler(): CommandHandler {
-  const commands: Command[] = [helpCommand, quitCommand, resetChatCommand, addDocumentCommand, addURLCommand, addYouTubeCommand];
+  const commands: Command[] = [
+    helpCommand,
+    quitCommand,
+    resetChatCommand,
+    addDocumentCommand,
+    addURLCommand,
+    addYouTubeCommand,
+    setContextConfigCommand,
+    setMemoryConfigCommand,
+    toggleWindowBufferMemory,
+  ];
 
   function getCommands() {
     return commands;

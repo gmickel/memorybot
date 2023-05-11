@@ -15,6 +15,7 @@ import { getMemoryVectorStore, addDocumentsToMemoryVectorStore, getBufferWindowM
 import { getContextVectorStore } from './lib/contextManager.js';
 import { getRelevantContext } from './lib/vectorStoreUtils.js';
 import { sanitizeInput } from './utils/string.js';
+import { getConfig } from './config/index.js';
 
 dotenv.config();
 
@@ -63,10 +64,16 @@ while (true) {
   } else {
     let memoryVectorStore = await getMemoryVectorStore();
     const question = sanitizeInput(input);
-    const context = await getRelevantContext(contextVectorStore, question, 6);
-    const history = await getRelevantContext(memoryVectorStore, question, 4);
+    const config = getConfig();
+    const context = await getRelevantContext(contextVectorStore, question, config.numContextDocumentsToRetrieve);
+    const history = await getRelevantContext(memoryVectorStore, question, config.numMemoryDocumentsToRetrieve);
     try {
-      response = await chain.call({ input: question, context, history, immediate_history: windowMemory });
+      response = await chain.call({
+        input: question,
+        context,
+        history,
+        immediate_history: config.useWindowMemory ? windowMemory : '',
+      });
       if (response) {
         await addDocumentsToMemoryVectorStore([
           { content: question, metadataType: 'question' },
