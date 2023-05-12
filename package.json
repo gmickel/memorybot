@@ -58,6 +58,7 @@
     "html-to-text": "^9.0.5",
     "langchain": "^0.0.74",
     "mammoth": "^1.5.1",
+    "node-sass": "^8.0.0",
     "node-spider": "^1.4.1",
     "ora": "^6.3.0",
     "pdf-parse": "^1.1.1",
