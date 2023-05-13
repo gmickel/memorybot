@@ -10,3 +10,5 @@ db/*
 memory/*
 chat_logs/*
 tmp/*
+prompttest.txt
+agentTest.ts
