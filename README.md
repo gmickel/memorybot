@@ -127,9 +127,13 @@ After starting the chatbot, simply type your questions or messages and press Ent
     Supports the following file types: .txt, .md, .pdf, .docx, .csv, .epub
 - `/add-url` (/url) - Scrapes the content from a url and adds it to the context vector store.
 
-    Arguments: `url`, `Maximum number of links to follow` (Default: 20), `Ignore pages with less than n characters` (Default: 200)
+    Arguments: `url`, `selector to extract` (Default: body), `Maximum number of links to follow` (Default: 20), `Ignore pages with less than n characters` (Default: 200)
 
-    Example: /add-url https://dociq.io 10 500
+    Example: /add-url https://dociq.io main 10 500
+
+    This operation may try to generate a large number of embeddings depending on the structure of the web pages and may lead to rate-limiting.
+
+    To avoid this, you can try to target a specific selector such as `.main`
 - `/add-youtube` (/yt) - Adds the transcript from a youtube video and adds it to the context vector store.
 
     Arguments: `youtube url` or `youtube videoid`

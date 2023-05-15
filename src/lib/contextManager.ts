@@ -15,7 +15,7 @@ import path from 'path';
 import { YoutubeTranscript } from 'youtube-transcript';
 import { getDefaultOraOptions } from '../config/index.js';
 import { getDirectoryFiles } from '../utils/getDirectoryFiles.js';
-import { Crawler } from './crawler.js';
+import { WebCrawler } from './crawler.js';
 
 const __dirname = new URL('../..', import.meta.url).pathname;
 const defaultOraOptions = getDefaultOraOptions(output);
@@ -43,7 +43,7 @@ async function loadOrCreateVectorStore(dbDirectory: string): Promise<HNSWLib> {
   let vectorStore: HNSWLib;
   let spinner;
   try {
-    vectorStore = await HNSWLib.load(dbDirectory, new OpenAIEmbeddings());
+    vectorStore = await HNSWLib.load(dbDirectory, new OpenAIEmbeddings({ maxConcurrency: 5 }));
   } catch {
     spinner = ora({
       ...defaultOraOptions,
@@ -53,7 +53,7 @@ async function loadOrCreateVectorStore(dbDirectory: string): Promise<HNSWLib> {
     const filesToAdd = await getDirectoryFiles(docsDirectory);
     const documents = await Promise.all(filesToAdd.map((filePath) => loadAndSplitFile(filePath)));
     const flattenedDocuments = documents.reduce((acc, val) => acc.concat(val), []);
-    vectorStore = await HNSWLib.fromDocuments(flattenedDocuments, new OpenAIEmbeddings());
+    vectorStore = await HNSWLib.fromDocuments(flattenedDocuments, new OpenAIEmbeddings({ maxConcurrency: 5 }));
     await vectorStore.save(dbDirectory);
     spinner.succeed();
   }
@@ -103,14 +103,19 @@ async function loadAndSplitFile(filePath: string): Promise<Document<Record<strin
   }
 }
 
-async function addURL(URL: string, maxPages: number, numberOfCharactersRequired: number) {
-  let spinner;
+async function addURL(URL: string, selector: string, maxPages: number, numberOfCharactersRequired: number) {
+  const spinner = ora({ ...defaultOraOptions, text: `Crawling ${URL}` });
+  let documents;
   try {
-    spinner = ora({ ...defaultOraOptions, text: `Adding URL to the Context Vector Store` }).start();
-    const crawler = new Crawler([URL], maxPages, numberOfCharactersRequired);
+    spinner.start();
+    const progressCallback = (linksFound: number, linksCrawled: number, currentUrl: string) => {
+      spinner.text = `Links found: ${linksFound} - Links crawled: ${linksCrawled} - Crawling ${currentUrl}`;
+    };
+
+    const crawler = new WebCrawler([URL], selector, maxPages, numberOfCharactersRequired, progressCallback);
     const pages = (await crawler.start()) as Page[];
 
-    const documents = await Promise.all(
+    documents = await Promise.all(
       pages.map((row) => {
         const splitter = new RecursiveCharacterTextSplitter();
 
@@ -122,19 +127,25 @@ async function addURL(URL: string, maxPages: number, numberOfCharactersRequired:
         return webDocs;
       })
     );
-    const flattenedDocuments = documents.flat();
-    const vectorStore = await getContextVectorStore();
-    await vectorStore.addDocuments(flattenedDocuments);
-    await vectorStore.save(dbDirectory);
     spinner.succeed();
-    return;
   } catch (error) {
-    if (spinner) {
+    spinner.fail(chalk.red(error));
+  }
+  if (documents) {
+    const spinner = ora({ ...defaultOraOptions, text: `Generating Embeddings` });
+    try {
+      const flattenedDocuments = documents.flat();
+      spinner.text = `Generating Embeddings for ${flattenedDocuments.length} documents`;
+      spinner.start();
+      const vectorStore = await getContextVectorStore();
+      await vectorStore.addDocuments(flattenedDocuments);
+      await vectorStore.save(dbDirectory);
+      spinner.succeed();
+    } catch (error) {
       spinner.fail(chalk.red(error));
-    } else {
-      output.write(chalk.red(error));
+    } finally {
+      return;
     }
-    return;
   }
 }
 

@@ -10,7 +10,7 @@ const setMemoryConfigCommand = createCommand(
     Example: /memory-config 10`,
   async (args, output) => {
     if (!args || args.length !== 1) {
-      output.write(chalk.red('Invalid number of arguments. Usage: /memory-config \`number of documents\`\n'));
+      output.write(chalk.red('Invalid number of arguments. Usage: /memory-config `number of documents`\n'));
       return;
     }
     const numMemoryDocumentsToRetrieve = parseInt(args[0]);

@@ -10,7 +10,7 @@ const addYouTubeCommand = createCommand(
     Example: /add-url https://www.youtube.com/watch?v=VMj-3S1tku0`,
   async (args, output) => {
     if (!args || args.length !== 1) {
-      output.write(chalk.red('Invalid number of arguments. Usage: /add-url \`youtube url\` or \`youtube videoid\`\n'));
+      output.write(chalk.red('Invalid number of arguments. Usage: /add-url `youtube url` or `youtube videoid`\n'));
       return;
     }
     const URLOrVideoID = args[0];

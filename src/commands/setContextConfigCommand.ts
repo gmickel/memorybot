@@ -10,7 +10,7 @@ const setContextConfigCommand = createCommand(
     Example: \`/context-config 10\``,
   async (args, output) => {
     if (!args || args.length !== 1) {
-      output.write(chalk.red('Invalid number of arguments. Usage: /context-config \`number of documents\`\n'));
+      output.write(chalk.red('Invalid number of arguments. Usage: /context-config `number of documents`\n'));
       return;
     }
     const numContextDocumentsToRetrieve = parseInt(args[0]);
