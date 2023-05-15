@@ -5,8 +5,8 @@ import { addDocument } from '../lib/contextManager.js';
 const addDocumentCommand = createCommand(
   'add-docs',
   ['docs'],
-  `Adds new documents from your configured docs directory to the context vector store.
-    Usage: /add-docs example.txt example.md
+  `Adds new documents from your configured docs directory to the context vector store.\n
+    Usage: /add-docs example.txt example.md\n
     Supports the following file types: .txt, .md, .pdf, .docx, .csv, .epub`,
   async (args, output) => {
     if (!args) {

@@ -13,7 +13,8 @@ const helpCommand = createCommand(
       for (const command of commandHandler.getCommands()) {
         const aliases = command.aliases.length > 0 ? ` (/${command.aliases.join(', /')})` : '';
         output.write(chalk.yellow(`/${command.name}${aliases}`));
-        output.write(` - ${command.description}\n`);
+        output.write(` - ${command.description}`);
+        output.write('\n');
       }
       resolve();
     });

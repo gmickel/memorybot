@@ -121,22 +121,32 @@ After starting the chatbot, simply type your questions or messages and press Ent
 ### Commands
 <!-- COMMANDS_START -->
 - `/add-docs` (/docs) - Adds new documents from your configured docs directory to the context vector store.
+
     Usage: /add-docs example.txt example.md
+
     Supports the following file types: .txt, .md, .pdf, .docx, .csv, .epub
 - `/add-url` (/url) - Scrapes the content from a url and adds it to the context vector store.
-    Arguments: %url%, %Maximum number of links to follow% (Default: 20) %Number of characters a page should have to not be ignored% (Default: 200)
+
+    Arguments: `url`, `Maximum number of links to follow` (Default: 20), `Ignore pages with less than n characters` (Default: 200)
+
     Example: /add-url https://dociq.io 10 500
 - `/add-youtube` (/yt) - Adds the transcript from a youtube video and adds it to the context vector store.
-    Arguments: %youtube url% or %youtube videoid%
+
+    Arguments: `youtube url` or `youtube videoid`
+
     Example: /add-url https://www.youtube.com/watch?v=VMj-3S1tku0
 - `/help` (/h, /?) - Show the list of available commands
 - `/quit` (/q) - Terminates the script
 - `/reset` - Resets the chat and starts a new conversation - This clears the memory vector store and the buffer window memory.
 - `/context-config` (/cc) - Sets the number of relevant documents to return from the context vector store.
-    Arguments: %number of documents% (Default: 6)
-    Example: /context-config 10
+
+    Arguments: `number of documents` (Default: 6)
+
+    Example: `/context-config 10`
 - `/memory-config` (/mc) - Sets the number of relevant documents to return from the memory vector store.
-    Arguments: %number of documents% (Default: 4)
+
+    Arguments: `number of documents` (Default: 4)
+
     Example: /memory-config 10
 - `/toggle-window-memory` (/wm) - Toggles the window buffer memory (MemoryBot's short-term transient memory) on or off.
 <!-- COMMANDS_END -->
