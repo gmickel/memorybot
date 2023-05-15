@@ -9,7 +9,7 @@ const turndownService = new TurndownService();
 class Crawler {
   pages: Page[] = [];
 
-  limit = 1000;
+  limit = 20;
 
   urls: string[] = [];
 
@@ -19,7 +19,7 @@ class Crawler {
 
   textLengthMinimum = 200;
 
-  constructor(urls: string[], limit = 1000, textLengthMinimum = 200) {
+  constructor(urls: string[], limit = 20, textLengthMinimum = 200) {
     this.urls = urls;
     this.limit = limit;
     this.textLengthMinimum = textLengthMinimum;

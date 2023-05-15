@@ -124,7 +124,7 @@ After starting the chatbot, simply type your questions or messages and press Ent
     Usage: /add-docs example.txt example.md
     Supports the following file types: .txt, .md, .pdf, .docx, .csv, .epub
 - `/add-url` (/url) - Scrapes the content from a url and adds it to the context vector store.
-    Arguments: <url>, <Maximum number of links to follow> (Default: 1000) <Number of characters a page should have to not be ignored> (Default: 200)
+    Arguments: <url>, <Maximum number of links to follow> (Default: 20) <Number of characters a page should have to not be ignored> (Default: 200)
     Example: /add-url https://dociq.io 10 500
 - `/add-youtube` (/yt) - Adds the transcript from a youtube video and adds it to the context vector store.
     Arguments: <youtube url> or <youtube videoid>
