@@ -6,11 +6,11 @@ const setContextConfigCommand = createCommand(
   'context-config',
   ['cc'],
   `Sets the number of relevant documents to return from the context vector store.
-    Arguments: <number of documents> (Default: 6)
+    Arguments: %number of documents% (Default: 6)
     Example: /context-config 10`,
   async (args, output) => {
     if (!args || args.length !== 1) {
-      output.write(chalk.red('Invalid number of arguments. Usage: /context-config <number of documents>\n'));
+      output.write(chalk.red('Invalid number of arguments. Usage: /context-config %number of documents%\n'));
       return;
     }
     const numContextDocumentsToRetrieve = parseInt(args[0]);

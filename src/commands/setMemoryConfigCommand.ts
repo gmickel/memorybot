@@ -6,11 +6,11 @@ const setMemoryConfigCommand = createCommand(
   'memory-config',
   ['mc'],
   `Sets the number of relevant documents to return from the memory vector store.
-    Arguments: <number of documents> (Default: 4)
+    Arguments: %number of documents% (Default: 4)
     Example: /memory-config 10`,
   async (args, output) => {
     if (!args || args.length !== 1) {
-      output.write(chalk.red('Invalid number of arguments. Usage: /memory-config <number of documents>\n'));
+      output.write(chalk.red('Invalid number of arguments. Usage: /memory-config %number of documents%\n'));
       return;
     }
     const numMemoryDocumentsToRetrieve = parseInt(args[0]);

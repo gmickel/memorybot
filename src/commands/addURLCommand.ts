@@ -6,13 +6,13 @@ const addURLCommand = createCommand(
   'add-url',
   ['url'],
   `Scrapes the content from a url and adds it to the context vector store.
-    Arguments: <url>, <Maximum number of links to follow> (Default: 20) <Number of characters a page should have to not be ignored> (Default: 200)
+    Arguments: %url%, %Maximum number of links to follow% (Default: 20) %Number of characters a page should have to not be ignored% (Default: 200)
     Example: /add-url https://dociq.io 10 500`,
   async (args, output) => {
     if (!args || args.length > 3) {
       output.write(
         chalk.red(
-          'Invalid number of arguments. Usage: /add-url <url> <Maximum number of links to follow> <Number of characters a page should have to not be ignored>\n'
+          'Invalid number of arguments. Usage: /add-url %url% %Maximum number of links to follow% %Number of characters a page should have to not be ignored%\n'
         )
       );
       return;

@@ -6,7 +6,7 @@ const addYouTubeCommand = createCommand(
   'add-youtube',
   ['yt'],
   `Adds the transcript from a youtube video and adds it to the context vector store.
-    Arguments: <youtube url> or <youtube videoid>
+    Arguments: %youtube url% or %youtube videoid%
     Example: /add-url https://www.youtube.com/watch?v=VMj-3S1tku0`,
   async (args, output) => {
     if (!args || args.length !== 1) {
