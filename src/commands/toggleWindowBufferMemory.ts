@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { createCommand } from './command.js';
+import createCommand from './command.js';
 import { setUseWindowMemory, getConfig } from '../config/index.js';
 
 const toggleWindowBufferMemory = createCommand(

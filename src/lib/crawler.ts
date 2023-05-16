@@ -1,5 +1,8 @@
 import * as cheerio from 'cheerio';
 import Crawler, { CrawlerRequestResponse } from 'crawler';
+import { stderr } from 'node:process';
+import resolveURL from '../utils/resolveURL.js';
+
 // import TurndownService from 'turndown';
 
 // const turndownService = new TurndownService();
@@ -12,22 +15,31 @@ interface Page {
   title: string;
 }
 
+/* The WebCrawler class is a TypeScript implementation of a web crawler that can extract text from web
+pages and follow links to crawl more pages. */
 class WebCrawler {
-  pages: Page[] = [];
-  limit = 20;
-  urls: string[] = [];
-  count = 0;
-  textLengthMinimum = 200;
-  selector = 'body';
+  pages: Page[];
+
+  limit: number;
+
+  urls: string[];
+
+  count: number;
+
+  textLengthMinimum: number;
+
+  selector: string;
+
   progressCallback: ProgressCallback;
+
   crawler: Crawler;
 
   constructor(
     urls: string[],
+    progressCallback: ProgressCallback,
     selector = 'body',
     limit = 20,
-    textLengthMinimum = 200,
-    progressCallback: ProgressCallback
+    textLengthMinimum = 200
   ) {
     this.urls = urls;
     this.selector = selector;
@@ -43,9 +55,11 @@ class WebCrawler {
     });
   }
 
+  /* `handleRequest` is a method that handles the response of a web page request made by the `crawler`
+object. It takes in three parameters: `error`, `res`, and `done`. */
   handleRequest = (error: Error | null, res: CrawlerRequestResponse, done: () => void) => {
     if (error) {
-      console.error(error);
+      stderr.write(error.message);
       done();
       return;
     }
@@ -72,13 +86,14 @@ class WebCrawler {
       this.progressCallback(this.count + 1, this.pages.length, res.request.uri.href);
     }
 
-    $('a').each((_i: number, elem: any) => {
+    $('a').each((_i: number, elem: cheerio.Element) => {
       if (this.count >= this.limit) {
         return false; // Stop iterating once the limit is reached
       }
 
       const href = $(elem).attr('href')?.split('#')[0];
-      const url = href && (res.request.uri as any).resolve(href);
+      const uri = res.request.uri.href;
+      const url = href && resolveURL(uri, href);
       // crawl more
       if (url && this.urls.some((u) => url.includes(u))) {
         this.crawler.queue(url);
@@ -92,7 +107,7 @@ class WebCrawler {
 
   start = async () => {
     this.pages = [];
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve) => {
       this.crawler.on('drain', () => {
         resolve(this.pages);
       });
@@ -103,4 +118,4 @@ class WebCrawler {
   };
 }
 
-export { WebCrawler };
+export default WebCrawler;

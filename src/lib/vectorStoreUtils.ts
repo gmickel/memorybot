@@ -27,4 +27,5 @@ async function getRelevantContext(
     .replaceAll('\n', ' ');
 }
 
+// eslint-disable-next-line import/prefer-default-export
 export { getRelevantContext };

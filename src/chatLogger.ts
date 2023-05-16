@@ -37,4 +37,4 @@ const logChat = async (logDirectory: string, question: string, answer: string): 
   }
 };
 
-export { logChat };
+export default logChat;

@@ -16,4 +16,4 @@ function createCommand(
 ): Command {
   return { name, aliases, description, execute };
 }
-export { createCommand };
+export default createCommand;

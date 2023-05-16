@@ -1,27 +1,33 @@
+/* eslint-disable no-await-in-loop */
 import dotenv from 'dotenv';
 import { OpenAIChat } from 'langchain/llms/openai';
+// eslint-disable-next-line import/no-unresolved
 import * as readline from 'node:readline/promises';
 import path from 'path';
 import fs from 'fs';
+/* This line of code is importing the `stdin` and `stdout` streams from the `process` module in
+Node.js. These streams are used for reading input from the user and writing output to the console,
+respectively. */
 import { stdin as input, stdout as output } from 'node:process';
 import { CallbackManager } from 'langchain/callbacks';
 import { ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate } from 'langchain/prompts';
 import { LLMChain } from 'langchain/chains';
 import { oneLine } from 'common-tags';
 import chalk from 'chalk';
-import { logChat } from './chatLogger.js';
-import { createCommandHandler } from './commands.js';
+import logChat from './chatLogger.js';
+import createCommandHandler from './commands.js';
 import { getMemoryVectorStore, addDocumentsToMemoryVectorStore, getBufferWindowMemory } from './lib/memoryManager.js';
 import { getContextVectorStore } from './lib/contextManager.js';
 import { getRelevantContext } from './lib/vectorStoreUtils.js';
-import { sanitizeInput } from './utils/string.js';
-import { getConfig } from './config/index.js';
+import sanitizeInput from './utils/sanitizeInput.js';
+import { getConfig, getProjectRoot } from './config/index.js';
+
+const projectRootDir = getProjectRoot();
 
 dotenv.config();
 
-const __dirname = new URL('..', import.meta.url).pathname;
-const chatLogDirectory = path.join(__dirname, 'chat_logs');
-const systemPromptTemplate = fs.readFileSync(path.join(__dirname, 'src/prompt.txt'), 'utf8');
+const chatLogDirectory = path.join(projectRootDir, 'chat_logs');
+const systemPromptTemplate = fs.readFileSync(path.join(projectRootDir, 'src/prompt.txt'), 'utf8');
 const rl = readline.createInterface({ input, output });
 const commandHandler: CommandHandler = createCommandHandler();
 const contextVectorStore = await getContextVectorStore();
@@ -46,7 +52,7 @@ const chatPrompt = ChatPromptTemplate.fromPromptMessages([
   HumanMessagePromptTemplate.fromTemplate('QUESTION: """{input}"""'),
 ]);
 
-let windowMemory = getBufferWindowMemory();
+const windowMemory = getBufferWindowMemory();
 
 const chain = new LLMChain({
   prompt: chatPrompt,
@@ -54,16 +60,17 @@ const chain = new LLMChain({
   llm,
 });
 
+// eslint-disable-next-line no-constant-condition
 while (true) {
   output.write(chalk.green('\nStart chatting or type /help for a list of commands\n'));
-  const input = await rl.question('> ');
+  const userInput = await rl.question('> ');
   let response;
-  if (input.startsWith('/')) {
-    const [command, ...args] = input.slice(1).split(' ');
+  if (userInput.startsWith('/')) {
+    const [command, ...args] = userInput.slice(1).split(' ');
     await commandHandler.execute(command, args, output);
   } else {
-    let memoryVectorStore = await getMemoryVectorStore();
-    const question = sanitizeInput(input);
+    const memoryVectorStore = await getMemoryVectorStore();
+    const question = sanitizeInput(userInput);
     const config = getConfig();
     const context = await getRelevantContext(contextVectorStore, question, config.numContextDocumentsToRetrieve);
     const history = await getRelevantContext(memoryVectorStore, question, config.numMemoryDocumentsToRetrieve);
@@ -83,10 +90,11 @@ while (true) {
       }
     } catch (error) {
       if (error instanceof Error && error.message.includes('Cancel:')) {
+        // TODO: Handle cancel
       } else if (error instanceof Error) {
-        console.error(chalk.red(error.message));
+        output.write(chalk.red(error.message));
       } else {
-        console.error(chalk.red(error));
+        output.write(chalk.red(error));
       }
     }
   }

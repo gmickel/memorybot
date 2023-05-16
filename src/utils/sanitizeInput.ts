@@ -5,8 +5,6 @@
  * @returns The function `sanitizeInput` is returning a string. The string is the input string with
  * leading and trailing whitespace removed, and all newline characters replaced with a space character.
  */
-function sanitizeInput(input: string): string {
+export default function sanitizeInput(input: string): string {
   return input.trim().replaceAll('\n', ' ');
 }
-
-export { sanitizeInput };

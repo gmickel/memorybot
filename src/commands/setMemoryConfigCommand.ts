@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { createCommand } from './command.js';
+import createCommand from './command.js';
 import { setNumMemoryDocumentsToRetrieve, getConfig } from '../config/index.js';
 
 const setMemoryConfigCommand = createCommand(
@@ -13,7 +13,7 @@ const setMemoryConfigCommand = createCommand(
       output.write(chalk.red('Invalid number of arguments. Usage: /memory-config `number of documents`\n'));
       return;
     }
-    const numMemoryDocumentsToRetrieve = parseInt(args[0]);
+    const numMemoryDocumentsToRetrieve = parseInt(args[0], 10);
     setNumMemoryDocumentsToRetrieve(numMemoryDocumentsToRetrieve);
     const config = getConfig();
     output.write(chalk.blue(`Number of memory documents to retrieve set to ${config.numMemoryDocumentsToRetrieve}`));

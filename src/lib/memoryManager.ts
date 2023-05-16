@@ -6,22 +6,24 @@ import { stdout as output } from 'node:process';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { Document } from 'langchain/document';
 import { BufferWindowMemory } from 'langchain/memory';
+import { getProjectRoot } from '../config/index.js';
 
-const __dirname = new URL('../..', import.meta.url).pathname;
-const memoryDirectory = path.join(__dirname, process.env.MEMORY_VECTOR_STORE_DIR || 'memory');
+const projectRootDir = getProjectRoot();
+
+const memoryDirectory = path.join(projectRootDir, process.env.MEMORY_VECTOR_STORE_DIR || 'memory');
 
 let memoryVectorStore: HNSWLib;
 try {
   memoryVectorStore = await HNSWLib.load(memoryDirectory, new OpenAIEmbeddings());
 } catch {
-  output.write(chalk.blue(`Creating a new memory vector store index in the ${memoryDirectory} directory`) + '\n');
+  output.write(`${chalk.blue(`Creating a new memory vector store index in the ${memoryDirectory} directory`)}\n`);
   memoryVectorStore = new HNSWLib(new OpenAIEmbeddings(), {
     space: 'cosine',
     numDimensions: 1536,
   });
 }
 
-let bufferWindowMemory = new BufferWindowMemory({
+const bufferWindowMemory = new BufferWindowMemory({
   returnMessages: false,
   memoryKey: 'immediate_history',
   inputKey: 'input',
@@ -40,6 +42,10 @@ function getBufferWindowMemory() {
   return bufferWindowMemory;
 }
 
+async function saveMemoryVectorStore() {
+  await memoryWrapper.vectorStoreInstance.save(memoryDirectory);
+}
+
 async function addDocumentsToMemoryVectorStore(
   documents: Array<{ content: string; metadataType: string }>
 ): Promise<void> {
@@ -50,21 +56,8 @@ async function addDocumentsToMemoryVectorStore(
   await saveMemoryVectorStore();
 }
 
-async function saveMemoryVectorStore() {
-  await memoryWrapper.vectorStoreInstance.save(memoryDirectory);
-}
-
 function resetBufferWindowMemory() {
   bufferWindowMemory.clear();
-}
-
-async function resetMemoryVectorStore(onReset: (newMemoryVectorStore: HNSWLib) => void) {
-  const newMemoryVectorStore = new HNSWLib(new OpenAIEmbeddings(), {
-    space: 'cosine',
-    numDimensions: 1536,
-  });
-  await deleteMemoryDirectory();
-  onReset(newMemoryVectorStore);
 }
 
 async function deleteMemoryDirectory() {
@@ -76,10 +69,18 @@ async function deleteMemoryDirectory() {
   } catch (error) {
     if (error instanceof Error) {
       return chalk.red(`All files in the memory directory have been deleted: ${error.message}`);
-    } else {
-      return chalk.red(`All files in the memory directory have been deleted: ${error}`);
     }
+    return chalk.red(`All files in the memory directory have been deleted: ${error}`);
   }
+}
+
+async function resetMemoryVectorStore(onReset: (newMemoryVectorStore: HNSWLib) => void) {
+  const newMemoryVectorStore = new HNSWLib(new OpenAIEmbeddings(), {
+    space: 'cosine',
+    numDimensions: 1536,
+  });
+  await deleteMemoryDirectory();
+  onReset(newMemoryVectorStore);
 }
 
 function setMemoryVectorStore(newMemoryVectorStore: HNSWLib) {

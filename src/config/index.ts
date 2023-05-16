@@ -1,5 +1,13 @@
 import type { Options } from 'ora';
 import type { Writable } from 'stream';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+export function getProjectRoot() {
+  const currentModulePath = fileURLToPath(import.meta.url);
+  const projectRoot = path.resolve(path.dirname(currentModulePath), '..', '..');
+  return projectRoot;
+}
 
 export function getDefaultOraOptions(output: Writable): Options {
   return {

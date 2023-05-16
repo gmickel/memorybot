@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { createCommand } from './command.js';
+import createCommand from './command.js';
 
 const exitCommand = createCommand('quit', ['q'], 'Terminates the script', (_args, output) => {
   output.write(chalk.yellow('\nThanks for talking, bye!\n'));

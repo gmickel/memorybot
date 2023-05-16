@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { createCommand } from './command.js';
+import createCommand from './command.js';
 import { resetBufferWindowMemory, resetMemoryVectorStore, setMemoryVectorStore } from '../lib/memoryManager.js';
 
 const resetChatCommand = createCommand(

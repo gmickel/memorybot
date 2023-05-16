@@ -1,23 +1,24 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { getProjectRoot } from './src/config/index.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const projectRootDir = getProjectRoot();
 
-const commandsDir = path.join(__dirname, 'src', 'commands');
-const readmePath = path.join(__dirname, 'README.md');
+const commandsDir = path.join(projectRootDir, 'src', 'commands');
+const readmePath = path.join(projectRootDir, 'README.md');
 
 const commandFiles = fs.readdirSync(commandsDir).filter((file) => file !== 'command.ts');
 
 async function getCommandsMarkdown() {
-  const commands = [];
-  for (const file of commandFiles) {
+  const commandsPromises = commandFiles.map(async (file) => {
     const commandModule = await import(path.join(commandsDir, file));
     const command = commandModule.default;
-    const aliases = command.aliases.length > 0 ? ` (${command.aliases.map((alias) => `/${alias}`).join(', ')})` : '';
-    commands.push(`- \`/${command.name}\`${aliases} - ${command.description}`);
-  }
+    const aliases =
+      command.aliases.length > 0 ? ` (${command.aliases.map((alias: string) => `/${alias}`).join(', ')})` : '';
+    return `- \`/${command.name}\`${aliases} - ${command.description}`;
+  });
+
+  const commands = await Promise.all(commandsPromises);
   return commands.join('\n');
 }
 

@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { createCommand } from './command.js';
+import createCommand from './command.js';
 import { setNumContextDocumentsToRetrieve, getConfig } from '../config/index.js';
 
 const setContextConfigCommand = createCommand(
@@ -13,7 +13,7 @@ const setContextConfigCommand = createCommand(
       output.write(chalk.red('Invalid number of arguments. Usage: /context-config `number of documents`\n'));
       return;
     }
-    const numContextDocumentsToRetrieve = parseInt(args[0]);
+    const numContextDocumentsToRetrieve = parseInt(args[0], 10);
     setNumContextDocumentsToRetrieve(numContextDocumentsToRetrieve);
     const config = getConfig();
     output.write(chalk.blue(`Number of context documents to retrieve set to ${config.numContextDocumentsToRetrieve}`));
