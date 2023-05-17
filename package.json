@@ -5,6 +5,9 @@
   "type": "module",
   "main": "./dist/index.js",
   "private": "true",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "tsc --declaration --outDir dist/",
     "dev": "tsx -r dotenv/config src/index.ts --inspect",
@@ -22,7 +25,9 @@
   "keywords": [
     "ai-chatbot",
     "nodejs",
-    "context-aware"
+    "context-aware",
+    "chatgpt",
+    "gpt-4"
   ],
   "author": "Gordon Mickel <gordon@dociq.io> (https://bytesizedbrainwaves.substack.com/)",
   "license": "MIT",
