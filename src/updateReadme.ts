@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getProjectRoot } from './src/config/index.js';
+import { getProjectRoot } from './config/index.js';
 
 const projectRootDir = getProjectRoot();
 

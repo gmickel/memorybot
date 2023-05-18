@@ -16,7 +16,7 @@
     "lint:fix": "npm run lint --fix",
     "format": "prettier --write \"**/*.ts\"",
     "format:check": "prettier --list-different \"**/*.ts\"",
-    "update-readme": "tsx -r dotenv/config updateReadme.ts"
+    "update-readme": "tsx -r dotenv/config src/updateReadme.ts"
   },
   "repository": {
     "type": "git",
