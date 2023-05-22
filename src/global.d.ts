@@ -17,6 +17,7 @@ type Page = {
 };
 
 interface Config {
+  currentVectorStoreDatabasePath: string;
   numContextDocumentsToRetrieve: number;
   numMemoryDocumentsToRetrieve: number;
   useWindowMemory: boolean;

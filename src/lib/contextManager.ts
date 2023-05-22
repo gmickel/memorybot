@@ -13,14 +13,14 @@ import { MarkdownTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/
 import { Document } from 'langchain/document';
 import path from 'path';
 import { YoutubeTranscript } from 'youtube-transcript';
-import { getDefaultOraOptions, getProjectRoot } from '../config/index.js';
+import createDirectory from 'utils/createDirectory.js';
+import { getConfig, getDefaultOraOptions, getProjectRoot } from '../config/index.js';
 import getDirectoryFiles from '../utils/getDirectoryFiles.js';
 import WebCrawler from './crawler.js';
 
 const projectRootDir = getProjectRoot();
 
 const defaultOraOptions = getDefaultOraOptions(output);
-const dbDirectory = path.join(projectRootDir, process.env.VECTOR_STORE_DIR || 'db');
 
 /**
  * This function loads and splits a file based on its extension using different loaders and text
@@ -80,6 +80,8 @@ async function loadAndSplitFile(filePath: string): Promise<Document<Record<strin
 async function loadOrCreateVectorStore(): Promise<HNSWLib> {
   let vectorStore: HNSWLib;
   let spinner;
+  await createDirectory(getConfig().currentVectorStoreDatabasePath);
+  const dbDirectory = getConfig().currentVectorStoreDatabasePath;
   try {
     vectorStore = await HNSWLib.load(dbDirectory, new OpenAIEmbeddings({ maxConcurrency: 5 }));
   } catch {
@@ -116,6 +118,7 @@ async function getContextVectorStore() {
  */
 async function addDocument(filePaths: string[]) {
   let spinner;
+  const dbDirectory = getConfig().currentVectorStoreDatabasePath;
   try {
     spinner = ora({ ...defaultOraOptions, text: `Adding files to the Context Vector Store` }).start();
     const docsDirectory = path.join(projectRootDir, process.env.DOCS_DIR || 'docs');
@@ -146,6 +149,7 @@ async function addDocument(filePaths: string[]) {
  */
 async function addYouTube(URLOrVideoID: string) {
   let spinner;
+  const dbDirectory = getConfig().currentVectorStoreDatabasePath;
   try {
     spinner = ora({
       ...defaultOraOptions,
@@ -188,6 +192,7 @@ async function addYouTube(URLOrVideoID: string) {
  * will return undefined if there are no errors.
  */
 async function addURL(URL: string, selector: string, maxPages: number, numberOfCharactersRequired: number) {
+  const dbDirectory = getConfig().currentVectorStoreDatabasePath;
   const addUrlSpinner = ora({ ...defaultOraOptions, text: `Crawling ${URL}` });
   let documents;
   try {

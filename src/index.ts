@@ -26,13 +26,25 @@ const projectRootDir = getProjectRoot();
 
 dotenv.config();
 
+// Set up the chat log directory
 const chatLogDirectory = path.join(projectRootDir, 'chat_logs');
+
+// Get the prompt template
 const systemPromptTemplate = fs.readFileSync(path.join(projectRootDir, 'src/prompt.txt'), 'utf8');
+
+// Set up the readline interface to read input from the user and write output to the console
 const rl = readline.createInterface({ input, output });
+
+// Set up CLI commands
 const commandHandler: CommandHandler = createCommandHandler();
+
+// Load or create the default context vector store
 const contextVectorStore = await getContextVectorStore();
+
 const callbackManager = CallbackManager.fromHandlers({
+  // This function is called when the LLM generates a new token (i.e., a prediction for the next word)
   async handleLLMNewToken(token: string) {
+    // Write the token to the output stream (i.e., the console)
     output.write(token);
   },
 });
