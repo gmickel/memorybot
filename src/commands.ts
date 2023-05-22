@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import changeContextStoreCommand from 'commands/switchContextStoreCommand.js';
+import changeContextStoreCommand from './commands/switchContextStoreCommand.js';
 import helpCommand from './commands/helpCommand.js';
 import quitCommand from './commands/quitCommand.js';
 import resetChatCommand from './commands/resetChatCommand.js';
