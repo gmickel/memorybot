@@ -22,3 +22,12 @@ interface Config {
   numMemoryDocumentsToRetrieve: number;
   useWindowMemory: boolean;
 }
+
+interface FileInfo {
+  name: string;
+  size: number;
+}
+
+interface DirectoryContent {
+  [directory: string]: FileInfo[];
+}

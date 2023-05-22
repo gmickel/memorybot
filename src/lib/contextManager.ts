@@ -14,7 +14,8 @@ import { Document } from 'langchain/document';
 import path from 'path';
 import { YoutubeTranscript } from 'youtube-transcript';
 import createDirectory from 'utils/createDirectory.js';
-import { getConfig, getDefaultOraOptions, getProjectRoot } from '../config/index.js';
+import getDirectoryListWithDetails from 'utils/getDirectoryListWithDetails.js';
+import { getConfig, getDefaultOraOptions, getProjectRoot, setCurrentVectorStoreDatabasePath } from '../config/index.js';
 import getDirectoryFiles from '../utils/getDirectoryFiles.js';
 import WebCrawler from './crawler.js';
 
@@ -69,6 +70,42 @@ async function loadAndSplitFile(filePath: string): Promise<Document<Record<strin
       throw new Error(`Unsupported file extension: ${fileExtension}`);
   }
   return documents;
+}
+
+/**
+ * This function loads or creates a new empty Context Vector Store using HNSWLib and OpenAIEmbeddings.
+ * @returns a Promise that resolves to an instance of the HNSWLib class, which represents a
+ * hierarchical navigable small world graph used for nearest neighbor search. The instance is either
+ * loaded from an existing directory or created as a new empty Context Vector Store with specified
+ * parameters.
+ */
+async function loadOrCreateEmptyVectorStore(subDirectory: string): Promise<HNSWLib> {
+  let vectorStore: HNSWLib;
+  let spinner;
+  const newContextVectorStorePath = path.join(projectRootDir, process.env.VECTOR_STORE_BASE_DIR || 'db', subDirectory);
+  await createDirectory(newContextVectorStorePath);
+  setCurrentVectorStoreDatabasePath(newContextVectorStorePath);
+  const dbDirectory = getConfig().currentVectorStoreDatabasePath;
+  try {
+    vectorStore = await HNSWLib.load(dbDirectory, new OpenAIEmbeddings({ maxConcurrency: 5 }));
+    output.write(chalk.blue(`Using Context Vector Store in the ${dbDirectory} directory\n`));
+  } catch {
+    spinner = ora({
+      ...defaultOraOptions,
+      text: chalk.blue(`Creating new empty Context Vector Store in the ${dbDirectory} directory`),
+    }).start();
+    vectorStore = new HNSWLib(new OpenAIEmbeddings({ maxConcurrency: 5 }), {
+      space: 'cosine',
+      numDimensions: 1536,
+    });
+    spinner.succeed();
+    output.write(
+      chalk.red.bold(
+        `\nThe Context Vector Store is currently empty and unsaved, add context to is using \`/add-docs\`, \`/add-url\` or \`/add-youtube\``
+      )
+    );
+  }
+  return vectorStore;
 }
 
 /**
@@ -237,4 +274,22 @@ async function addURL(URL: string, selector: string, maxPages: number, numberOfC
   }
 }
 
-export { getContextVectorStore, addDocument, addURL, addYouTube };
+async function listContextStores() {
+  const projectRoot = getProjectRoot(); // Please replace this with your actual function to get the project root
+  const vectorStoreDir = process.env.VECTOR_STORE_BASE_DIR || 'db';
+  const targetDir = path.join(projectRoot, vectorStoreDir);
+  const contextVectorStoresList = await getDirectoryListWithDetails(targetDir);
+  output.write(chalk.blue(`Context Vector Stores in ${targetDir}:\n\n`));
+  Object.entries(contextVectorStoresList).forEach(([dir, files]) => {
+    output.write(chalk.yellow(`Directory: ${dir}`));
+    if (dir === getConfig().currentVectorStoreDatabasePath) {
+      output.write(chalk.green(` (Currently selected)`));
+    }
+    output.write('\n');
+    files.forEach((file) => {
+      output.write(chalk.yellow(`  File: ${file.name}, Size: ${file.size} KB\n`));
+    });
+  });
+}
+
+export { getContextVectorStore, addDocument, addURL, addYouTube, listContextStores, loadOrCreateEmptyVectorStore };

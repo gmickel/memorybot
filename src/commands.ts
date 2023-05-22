@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import changeContextStoreCommand from 'commands/switchContextStoreCommand.js';
 import helpCommand from './commands/helpCommand.js';
 import quitCommand from './commands/quitCommand.js';
 import resetChatCommand from './commands/resetChatCommand.js';
@@ -7,7 +8,8 @@ import addURLCommand from './commands/addURLCommand.js';
 import addYouTubeCommand from './commands/addYouTubeCommand.js';
 import setContextConfigCommand from './commands/setContextConfigCommand.js';
 import setMemoryConfigCommand from './commands/setMemoryConfigCommand.js';
-import toggleWindowBufferMemory from './commands/toggleWindowBufferMemory.js';
+import toggleWindowBufferMemoryCommand from './commands/toggleWindowBufferMemoryCommand.js';
+import listContextStoresCommand from './commands/listContextStoresCommand.js';
 
 function createCommandHandler(): CommandHandler {
   const commands: Command[] = [
@@ -19,7 +21,9 @@ function createCommandHandler(): CommandHandler {
     addYouTubeCommand,
     setContextConfigCommand,
     setMemoryConfigCommand,
-    toggleWindowBufferMemory,
+    toggleWindowBufferMemoryCommand,
+    listContextStoresCommand,
+    changeContextStoreCommand,
   ];
 
   function getCommands() {
