@@ -73,42 +73,6 @@ async function loadAndSplitFile(filePath: string): Promise<Document<Record<strin
 }
 
 /**
- * This function loads or creates a new empty Context Vector Store using HNSWLib and OpenAIEmbeddings.
- * @returns a Promise that resolves to an instance of the HNSWLib class, which represents a
- * hierarchical navigable small world graph used for nearest neighbor search. The instance is either
- * loaded from an existing directory or created as a new empty Context Vector Store with specified
- * parameters.
- */
-async function loadOrCreateEmptyVectorStore(subDirectory: string): Promise<HNSWLib> {
-  let vectorStore: HNSWLib;
-  let spinner;
-  const newContextVectorStorePath = path.join(projectRootDir, process.env.VECTOR_STORE_BASE_DIR || 'db', subDirectory);
-  await createDirectory(newContextVectorStorePath);
-  setCurrentVectorStoreDatabasePath(newContextVectorStorePath);
-  const dbDirectory = getConfig().currentVectorStoreDatabasePath;
-  try {
-    vectorStore = await HNSWLib.load(dbDirectory, new OpenAIEmbeddings({ maxConcurrency: 5 }));
-    output.write(chalk.blue(`Using Context Vector Store in the ${dbDirectory} directory\n`));
-  } catch {
-    spinner = ora({
-      ...defaultOraOptions,
-      text: chalk.blue(`Creating new empty Context Vector Store in the ${dbDirectory} directory`),
-    }).start();
-    vectorStore = new HNSWLib(new OpenAIEmbeddings({ maxConcurrency: 5 }), {
-      space: 'cosine',
-      numDimensions: 1536,
-    });
-    spinner.succeed();
-    output.write(
-      chalk.red.bold(
-        `\nThe Context Vector Store is currently empty and unsaved, add context to is using \`/add-docs\`, \`/add-url\` or \`/add-youtube\``
-      )
-    );
-  }
-  return vectorStore;
-}
-
-/**
  * This function loads or creates a vector store using HNSWLib and OpenAIEmbeddings.
  * @returns The function `loadOrCreateVectorStore` returns a Promise that resolves to an instance of
  * the `HNSWLib` class, which is a vector store used for storing and searching high-dimensional
@@ -142,6 +106,43 @@ const contextVectorStore = await loadOrCreateVectorStore();
 const contextWrapper = {
   contextInstance: contextVectorStore,
 };
+
+/**
+ * This function loads or creates a new empty Context Vector Store using HNSWLib and OpenAIEmbeddings.
+ * @returns a Promise that resolves to an instance of the HNSWLib class, which represents a
+ * hierarchical navigable small world graph used for nearest neighbor search. The instance is either
+ * loaded from an existing directory or created as a new empty Context Vector Store with specified
+ * parameters.
+ */
+async function loadOrCreateEmptyVectorStore(subDirectory: string): Promise<HNSWLib> {
+  let vectorStore: HNSWLib;
+  let spinner;
+  const newContextVectorStorePath = path.join(projectRootDir, process.env.VECTOR_STORE_BASE_DIR || 'db', subDirectory);
+  await createDirectory(newContextVectorStorePath);
+  setCurrentVectorStoreDatabasePath(newContextVectorStorePath);
+  const dbDirectory = getConfig().currentVectorStoreDatabasePath;
+  try {
+    vectorStore = await HNSWLib.load(dbDirectory, new OpenAIEmbeddings({ maxConcurrency: 5 }));
+    output.write(chalk.blue(`Using Context Vector Store in the ${dbDirectory} directory\n`));
+  } catch {
+    spinner = ora({
+      ...defaultOraOptions,
+      text: chalk.blue(`Creating new empty Context Vector Store in the ${dbDirectory} directory`),
+    }).start();
+    vectorStore = new HNSWLib(new OpenAIEmbeddings({ maxConcurrency: 5 }), {
+      space: 'cosine',
+      numDimensions: 1536,
+    });
+    spinner.succeed();
+    output.write(
+      chalk.red.bold(
+        `\nThe Context Vector Store is currently empty and unsaved, add context to is using \`/add-docs\`, \`/add-url\` or \`/add-youtube\``
+      )
+    );
+  }
+  contextWrapper.contextInstance = vectorStore;
+  return vectorStore;
+}
 
 async function getContextVectorStore() {
   return contextWrapper.contextInstance;

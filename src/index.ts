@@ -38,9 +38,6 @@ const rl = readline.createInterface({ input, output });
 // Set up CLI commands
 const commandHandler: CommandHandler = createCommandHandler();
 
-// Load or create the default context vector store
-const contextVectorStore = await getContextVectorStore();
-
 const callbackManager = CallbackManager.fromHandlers({
   // This function is called when the LLM generates a new token (i.e., a prediction for the next word)
   async handleLLMNewToken(token: string) {
@@ -82,6 +79,7 @@ while (true) {
     await commandHandler.execute(command, args, output);
   } else {
     const memoryVectorStore = await getMemoryVectorStore();
+    const contextVectorStore = await getContextVectorStore();
     const question = sanitizeInput(userInput);
     const config = getConfig();
     const context = await getRelevantContext(contextVectorStore, question, config.numContextDocumentsToRetrieve);
