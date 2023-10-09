@@ -19,9 +19,11 @@ export function getDefaultOraOptions(output: Writable): Options {
 
 const defaultConfig: Config = {
   currentVectorStoreDatabasePath: path.join(getProjectRoot(), process.env.VECTOR_STORE_DIR || 'db/default'),
-  numContextDocumentsToRetrieve: 6,
+  numContextDocumentsToRetrieve: 4,
   numMemoryDocumentsToRetrieve: 4,
   useWindowMemory: true,
+  chunkSize: 700,
+  chunkOverlap: 50,
 };
 
 let config: Config = { ...defaultConfig };

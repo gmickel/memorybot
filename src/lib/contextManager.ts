@@ -9,7 +9,7 @@ import { DocxLoader } from 'langchain/document_loaders/fs/docx';
 import { EPubLoader } from 'langchain/document_loaders/fs/epub';
 import { CSVLoader } from 'langchain/document_loaders/fs/csv';
 import ora from 'ora';
-import { MarkdownTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document } from 'langchain/document';
 import path from 'path';
 import { YoutubeTranscript } from 'youtube-transcript';
@@ -22,6 +22,16 @@ import WebCrawler from './crawler.js';
 const projectRootDir = getProjectRoot();
 
 const defaultOraOptions = getDefaultOraOptions(output);
+
+const defaultRecursiveCharacterTextSplitter = new RecursiveCharacterTextSplitter({
+  chunkSize: getConfig().chunkSize,
+  chunkOverlap: getConfig().chunkOverlap,
+});
+
+const markdownRecursiveCharacterTextSplitter = RecursiveCharacterTextSplitter.fromLanguage('markdown', {
+  chunkSize: getConfig().chunkSize,
+  chunkOverlap: getConfig().chunkOverlap,
+});
 
 /**
  * This function loads and splits a file based on its extension using different loaders and text
@@ -40,31 +50,31 @@ async function loadAndSplitFile(filePath: string): Promise<Document<Record<strin
   switch (fileExtension) {
     case '.json':
       loader = new JSONLoader(filePath);
-      documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+      documents = await loader.loadAndSplit(defaultRecursiveCharacterTextSplitter);
       break;
     case '.txt':
       loader = new TextLoader(filePath);
-      documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+      documents = await loader.loadAndSplit(defaultRecursiveCharacterTextSplitter);
       break;
     case '.md':
       loader = new TextLoader(filePath);
-      documents = await loader.loadAndSplit(new MarkdownTextSplitter());
+      documents = await loader.loadAndSplit(markdownRecursiveCharacterTextSplitter);
       break;
     case '.pdf':
       loader = new PDFLoader(filePath, { splitPages: false });
-      documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+      documents = await loader.loadAndSplit(defaultRecursiveCharacterTextSplitter);
       break;
     case '.docx':
       loader = new DocxLoader(filePath);
-      documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+      documents = await loader.loadAndSplit(defaultRecursiveCharacterTextSplitter);
       break;
     case '.csv':
       loader = new CSVLoader(filePath);
-      documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+      documents = await loader.loadAndSplit(defaultRecursiveCharacterTextSplitter);
       break;
     case '.epub':
       loader = new EPubLoader(filePath, { splitChapters: false });
-      documents = await loader.loadAndSplit(new RecursiveCharacterTextSplitter());
+      documents = await loader.loadAndSplit(defaultRecursiveCharacterTextSplitter);
       break;
     default:
       throw new Error(`Unsupported file extension: ${fileExtension}`);
@@ -195,8 +205,7 @@ async function addYouTube(URLOrVideoID: string) {
     }).start();
     const transcript = await YoutubeTranscript.fetchTranscript(URLOrVideoID);
     const text = transcript.map((part) => part.text).join(' ');
-    const splitter = new RecursiveCharacterTextSplitter();
-    const videoDocs = await splitter.splitDocuments([
+    const videoDocs = await defaultRecursiveCharacterTextSplitter.splitDocuments([
       new Document({
         pageContent: text,
       }),
@@ -244,7 +253,7 @@ async function addURL(URL: string, selector: string, maxPages: number, numberOfC
 
     documents = await Promise.all(
       pages.map((row) => {
-        const splitter = new RecursiveCharacterTextSplitter();
+        const splitter = defaultRecursiveCharacterTextSplitter;
 
         const webDocs = splitter.splitDocuments([
           new Document({

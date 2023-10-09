@@ -6,7 +6,7 @@ const setContextConfigCommand = createCommand(
   'context-config',
   ['cc'],
   `Sets the number of relevant documents to return from the context vector store.\n
-    Arguments: \`number of documents\` (Default: 6)\n
+    Arguments: \`number of documents\` (Default: 4)\n
     Example: \`/context-config 10\``,
   async (args, output) => {
     if (!args || args.length !== 1) {

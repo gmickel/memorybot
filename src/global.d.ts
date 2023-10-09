@@ -21,6 +21,8 @@ interface Config {
   numContextDocumentsToRetrieve: number;
   numMemoryDocumentsToRetrieve: number;
   useWindowMemory: boolean;
+  chunkSize: number;
+  chunkOverlap: number;
 }
 
 interface FileInfo {
