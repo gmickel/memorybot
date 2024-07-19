@@ -63,7 +63,7 @@
     "fs-extra": "^11.1.1",
     "hnswlib-node": "1.4.2",
     "html-to-text": "^9.0.5",
-    "langchain": "^0.0.163",
+    "langchain": "^0.2.8",
     "mammoth": "^1.6.0",
     "ora": "^7.0.1",
     "pdf-parse": "^1.1.1",
