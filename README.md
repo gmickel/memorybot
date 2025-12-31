@@ -1,5 +1,9 @@
 # Memory Bot
 
+> **🚀 Looking for something more modern?** Check out [**GNO**](https://gno.sh) ([github.com/gmickel/gno](https://github.com/gmickel/gno)) - a local-first hybrid search tool for your notes, docs, and code. GNO runs entirely on your machine with keyword + vector + re-ranking search, and integrates directly with AI agents like Claude Desktop via MCP. No API costs for embeddings, no cloud dependency.
+
+---
+
 Memory Bot is designed to support context-aware requests to the OpenAI API, providing unlimited context and chat history for more cost-efficient and accurate content generation.
 
 Memory Bot can be used for a variety of purposes, including context-aware content generation, such as marketing materials, website copy, and social media content. It can also be used for document-based question answering (DBQA), allowing you to add an unlimited amount of documents to the chatbot and ask questions such as “What was the xxx's revenue in 2021?”. This feature enables more efficient and accurate retrieval of information from your own content.
